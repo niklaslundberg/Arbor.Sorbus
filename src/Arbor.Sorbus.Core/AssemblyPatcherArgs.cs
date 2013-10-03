@@ -1,6 +1,6 @@
 ﻿namespace Arbor.Sorbus.Core
 {
-    public class AssemblyPatcherArgs
+    public sealed class AssemblyPatcherArgs
     {
         public AssemblyVersion AssemblyVersion { get; set; }
         public AssemblyFileVersion AssemblyFileVersion { get; set; }

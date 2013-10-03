@@ -2,7 +2,7 @@
 
 namespace Arbor.Sorbus.Core
 {
-    public class AssemblyVersion
+    public sealed class AssemblyVersion
     {
         readonly Version _version;
 

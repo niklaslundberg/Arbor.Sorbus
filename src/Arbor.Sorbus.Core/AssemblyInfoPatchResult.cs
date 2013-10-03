@@ -1,6 +1,6 @@
 ﻿namespace Arbor.Sorbus.Core
 {
-    public class AssemblyInfoPatchResult
+    public sealed class AssemblyInfoPatchResult
     {
         readonly AssemblyFileVersion _assemblyFileVersion;
         readonly AssemblyVersion _assemblyVersion;

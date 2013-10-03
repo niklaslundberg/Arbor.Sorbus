@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Arbor.Sorbus.Core
 {
-    public class AssemblyPatcher
+    public sealed class AssemblyPatcher
     {
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
 

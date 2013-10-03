@@ -2,7 +2,7 @@
 
 namespace Arbor.Sorbus.Core
 {
-    public class AssemblyPatcherArgsParser
+    public sealed class AssemblyPatcherArgsParser
     {
         public AssemblyPatcherArgs Parse(string[] args)
         {

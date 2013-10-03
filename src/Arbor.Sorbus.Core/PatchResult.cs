@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Arbor.Sorbus.Core
 {
-    public class PatchResult : IReadOnlyCollection<AssemblyInfoPatchResult>
+    public sealed class PatchResult : IReadOnlyCollection<AssemblyInfoPatchResult>
     {
         readonly List<AssemblyInfoPatchResult> _patchResults = new List<AssemblyInfoPatchResult>();
 

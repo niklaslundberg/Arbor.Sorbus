@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Arbor.Sorbus.Core
 {
-    public class AssemblyPatcherApp
+    public sealed class AssemblyPatcherApp
     {
         public void PatchOrUnpatch(string[] args)
         {

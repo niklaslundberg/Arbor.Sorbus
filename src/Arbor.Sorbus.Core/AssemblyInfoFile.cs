@@ -1,6 +1,6 @@
 ﻿namespace Arbor.Sorbus.Core
 {
-    public class AssemblyInfoFile
+    public sealed class AssemblyInfoFile
     {
         readonly string _assemblyInfoPath;
 
