@@ -28,8 +28,9 @@ namespace Arbor.Sorbus.Tests.Integration
                 assemblyVersion = new AssemblyVersion(new Version(2, 3, 0, 0));
                 assemblyFileVersion = new AssemblyFileVersion(new Version(2, 3, 4, 5));
 
-                patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), new AssemblyVersion(new Version(1,2,0,0)), 
-                                                    new AssemblyFileVersion(new Version(1,2,3,4)));
+                patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(),
+                                                    new AssemblyVersion(new Version(1, 2, 0, 0)),
+                                                    new AssemblyFileVersion(new Version(1, 2, 3, 4)));
             };
 
         Because of =
@@ -41,11 +42,21 @@ namespace Arbor.Sorbus.Tests.Integration
 
         It should_have_created_a_backup_file = () => File.Exists(patchResult.First().FileBackupPath).ShouldBeFalse();
 
-        It should_have_created_a_backup_file_with_the_original_version =
-            () => patchResult.First().OldAssemblyVersion.Version.ShouldEqual(new Version(1,2,0,0));
-
         It should_have_created_a_backup_file_with_the_original_file_version =
             () => patchResult.First().OldAssemblyFileVersion.Version.ShouldEqual(new Version(1, 2, 3, 4));
+
+        It should_have_created_a_backup_file_with_the_original_version =
+            () => patchResult.First().OldAssemblyVersion.Version.ShouldEqual(new Version(1, 2, 0, 0));
+
+        It should_have_have_the_same_line_count =
+            () =>
+                {
+                    string patchFullPath = patchResult.First().FullPath;
+                    int patchLineCount = File.ReadAllLines(patchFullPath).Count();
+                    string originalFullPath = assemblyInfoFiles.First().FullPath;
+                    int originalLineCount = File.ReadAllLines(originalFullPath).Count();
+                    patchLineCount.ShouldEqual(originalLineCount);
+                };
 
         It should_have_modified_the_target_version =
             () => File.ReadAllText(patchResult.First().FullPath).ShouldContain("2.3.4.5");

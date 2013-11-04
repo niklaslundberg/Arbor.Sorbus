@@ -149,13 +149,13 @@ namespace Arbor.Sorbus.Core
             {
                 using (var writer = new StreamWriter(tmpPath, false, encoding))
                 {
-                    while (true)
+                    while (reader.Peek() >= 0)
                     {
                         var readLine = reader.ReadLine();
 
                         if (readLine == null)
                         {
-                            break;
+                            continue;
                         }
 
                         string writtenLine;
