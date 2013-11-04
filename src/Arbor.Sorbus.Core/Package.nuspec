@@ -15,7 +15,7 @@
         An assembly info version helper library
     </summary>
     <language>en-US</language>
-    <projectUrl>https://nuget.org/packages/Arbor.Sorbus.NuGet</projectUrl>
+    <projectUrl>https://nuget.org/packages/Arbor.Sorbus</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
