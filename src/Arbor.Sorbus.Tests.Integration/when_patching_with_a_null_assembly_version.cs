@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
+using Machine.Specifications.Annotations;
 
 namespace Arbor.Sorbus.Tests.Integration
 {
@@ -9,16 +10,15 @@ namespace Arbor.Sorbus.Tests.Integration
     public class when_patching_with_a_null_assembly_version : patch_assembly_info_base
     {
         static AssemblyPatcher assemblyPatcher;
-        static IEnumerable<AssemblyInfoFile> assemblyInfoFiles;
+        static IEnumerable<AssemblyInfoFile> assemblyInfoFiles = new List<AssemblyInfoFile>();
         static AssemblyVersion assemblyVersion;
-        static AssemblyFileVersion assemblyFileVersion;
+        static AssemblyFileVersion assemblyFileVersion = null;
         static PatchResult patchResult;
         static Exception exception;
 
         Establish context = () =>
             {
                 assemblyPatcher = new AssemblyPatcher();
-                assemblyInfoFiles = new List<AssemblyInfoFile>();
                 assemblyVersion = null;
             };
 

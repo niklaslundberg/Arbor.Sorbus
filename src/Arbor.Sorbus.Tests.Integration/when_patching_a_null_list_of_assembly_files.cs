@@ -10,8 +10,8 @@ namespace Arbor.Sorbus.Tests.Integration
     {
         static AssemblyPatcher assemblyPatcher;
         static IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles;
-        static AssemblyVersion assemblyVersion;
-        static AssemblyFileVersion assemblyFileVersion;
+        static AssemblyVersion assemblyVersion = null;
+        static AssemblyFileVersion assemblyFileVersion = null;
         static PatchResult patchResult;
         static Exception exception;
 
