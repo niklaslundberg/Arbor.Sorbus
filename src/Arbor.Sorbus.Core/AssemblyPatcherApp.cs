@@ -21,11 +21,11 @@ namespace Arbor.Sorbus.Core
             }
             else
             {
-                PatchOrUnpatch(patcherArgs.AssemblyVersion, patcherArgs.AssemblyFileVersion);
+                Path(patcherArgs.AssemblyVersion, patcherArgs.AssemblyFileVersion);
             }
         }
 
-        public void PatchOrUnpatch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
+        public void Path(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
         {
             var patcher = new AssemblyPatcher();
 
@@ -46,7 +46,7 @@ namespace Arbor.Sorbus.Core
         public void Unpatch()
         {
             var patcher = new AssemblyPatcher();
-            var resultFilePath = Path.Combine(patcher.BackupBaseDirectory.FullName, "Patched.txt");
+            var resultFilePath = System.IO.Path.Combine(patcher.BackupBaseDirectory.FullName, "Patched.txt");
 
             if (!File.Exists(resultFilePath))
             {

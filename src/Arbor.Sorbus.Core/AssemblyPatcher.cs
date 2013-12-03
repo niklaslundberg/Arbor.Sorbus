@@ -36,9 +36,12 @@ namespace Arbor.Sorbus.Core
             var result = 
                 patchResult.Select(
                     file =>
-                    Patch(new AssemblyInfoFile(file.FullPath), file.OldAssemblyVersion, file.OldAssemblyFileVersion));
+                    {
+                        var assemblyInfoFile = new AssemblyInfoFile(file.FullPath);
+                        return Patch(assemblyInfoFile, file.OldAssemblyVersion, file.OldAssemblyFileVersion);
+                    }).ToList();
 
-            DeleteEmptySubDirs(BackupBaseDirectory);
+            DeleteEmptySubDirs(BackupBaseDirectory, true);
 
             return result;
         }
@@ -102,8 +105,14 @@ namespace Arbor.Sorbus.Core
             File.WriteAllText(resultFilePath, json, Encoding.UTF8);
         }
 
-        void DeleteEmptySubDirs(DirectoryInfo currentDir)
+        void DeleteEmptySubDirs(DirectoryInfo currentDir, bool deleteSelf = false)
         {
+            currentDir.Refresh();
+            if (!currentDir.Exists)
+            {
+                return;
+            }
+
             foreach (var subDir in currentDir.EnumerateDirectories())
             {
                 DeleteEmptySubDirs(subDir);
@@ -112,6 +121,18 @@ namespace Arbor.Sorbus.Core
                     !subDir.EnumerateFiles().Any())
                 {
                     subDir.Delete();
+                }
+            }
+
+            if (deleteSelf)
+            {
+                if (!currentDir.EnumerateDirectories().Any() &&
+                    !currentDir.EnumerateFiles().Any())
+                {
+                    currentDir.Refresh();
+                    if (currentDir.Exists) {
+                        currentDir.Delete(); 
+                    }
                 }
             }
         }
@@ -199,7 +220,14 @@ namespace Arbor.Sorbus.Core
                             writtenLine = readLine;
                         }
 
-                        writer.WriteLine(writtenLine);
+                        if (reader.Peek() >= 0)
+                        {
+                            writer.WriteLine(writtenLine);
+                        }
+                        else
+                        {
+                            writer.Write(writtenLine);
+                        }
                     }
                 }
             }
