@@ -21,11 +21,11 @@ namespace Arbor.Sorbus.Core
             }
             else
             {
-                Path(patcherArgs.AssemblyVersion, patcherArgs.AssemblyFileVersion);
+                Patch(patcherArgs.AssemblyVersion, patcherArgs.AssemblyFileVersion);
             }
         }
 
-        public void Path(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
+        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
         {
             var patcher = new AssemblyPatcher();
 
