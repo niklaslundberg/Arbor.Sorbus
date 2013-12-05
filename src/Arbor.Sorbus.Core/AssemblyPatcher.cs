@@ -33,7 +33,7 @@ namespace Arbor.Sorbus.Core
 
         public IEnumerable<PatchResult> Unpatch(PatchResult patchResult)
         {
-            var result = 
+            var result =
                 patchResult.Select(
                     file =>
                     {
@@ -47,8 +47,8 @@ namespace Arbor.Sorbus.Core
         }
 
         public PatchResult Patch(AssemblyInfoFile assemblyInfoFile,
-                                 AssemblyVersion assemblyVersion,
-                                 AssemblyFileVersion assemblyFileVersion)
+            AssemblyVersion assemblyVersion,
+            AssemblyFileVersion assemblyFileVersion)
         {
             CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
 
@@ -63,8 +63,8 @@ namespace Arbor.Sorbus.Core
         }
 
         public PatchResult Patch(IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles,
-                                 AssemblyVersion assemblyVersion,
-                                 AssemblyFileVersion assemblyFileVersion)
+            AssemblyVersion assemblyVersion,
+            AssemblyFileVersion assemblyFileVersion)
         {
             CheckArguments(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
 
@@ -78,7 +78,7 @@ namespace Arbor.Sorbus.Core
 
             var patchResults = assemblyInfoFiles
                 .Select(assemblyInfoFile =>
-                        PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile))
+                    PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile))
                 .ToList();
 
 
@@ -130,16 +130,17 @@ namespace Arbor.Sorbus.Core
                     !currentDir.EnumerateFiles().Any())
                 {
                     currentDir.Refresh();
-                    if (currentDir.Exists) {
-                        currentDir.Delete(); 
+                    if (currentDir.Exists)
+                    {
+                        currentDir.Delete();
                     }
                 }
             }
         }
 
         AssemblyInfoPatchResult PatchAssemblyInfo(AssemblyVersion assemblyVersion,
-                                                  AssemblyFileVersion assemblyFileVersion,
-                                                  AssemblyInfoFile assemblyInfoFile)
+            AssemblyFileVersion assemblyFileVersion,
+            AssemblyInfoFile assemblyInfoFile)
         {
             var sourceBase = VcsPathHelper.FindVcsRootPath();
             var sourceFileName = new FileInfo(assemblyInfoFile.FullPath);
@@ -170,25 +171,20 @@ namespace Arbor.Sorbus.Core
             {
                 using (var writer = new StreamWriter(tmpPath, false, encoding))
                 {
-                    while (reader.Peek() >= 0)
+                    while (!reader.EndOfStream)
                     {
-                        var readLine = reader.ReadLine();
-
-                        if (readLine == null)
-                        {
-                            continue;
-                        }
+                        var readLine = reader.ReadLineWithEol();
 
                         string writtenLine;
 
                         var isAssemblyVersionLine =
                             readLine.IndexOf("[assembly: AssemblyVersion(",
-                                             StringComparison.InvariantCultureIgnoreCase) >= 0;
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
 
 
                         var isAssemblyFileVersionLine =
                             readLine.IndexOf("[assembly: AssemblyFileVersion(",
-                                             StringComparison.InvariantCultureIgnoreCase) >= 0;
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
 
                         bool lineIsComment = readLine.Trim().StartsWith("//");
 
@@ -201,44 +197,39 @@ namespace Arbor.Sorbus.Core
                             oldAssemblyVersion = new AssemblyVersion(ParseVersion(readLine));
 
                             writtenLine = string.Format("[assembly: AssemblyVersion(\"{0}.{1}.{2}.{3}\")]",
-                                                        assemblyVersion.Version.Major,
-                                                        assemblyVersion.Version.Minor,
-                                                        assemblyVersion.Version.Build,
-                                                        assemblyVersion.Version.Revision);
+                                assemblyVersion.Version.Major,
+                                assemblyVersion.Version.Minor,
+                                assemblyVersion.Version.Build,
+                                assemblyVersion.Version.Revision) + readLine.NewLine();
                         }
                         else if (isAssemblyFileVersionLine)
                         {
                             oldAssemblyFileVersion = new AssemblyFileVersion(ParseVersion(readLine));
                             writtenLine = string.Format("[assembly: AssemblyFileVersion(\"{0}.{1}.{2}.{3}\")]",
-                                                        assemblyFileVersion.Version.Major,
-                                                        assemblyFileVersion.Version.Minor,
-                                                        assemblyFileVersion.Version.Build,
-                                                        assemblyFileVersion.Version.Revision);
+                                assemblyFileVersion.Version.Major,
+                                assemblyFileVersion.Version.Minor,
+                                assemblyFileVersion.Version.Build,
+                                assemblyFileVersion.Version.Revision) + readLine.NewLine();
                         }
                         else
                         {
                             writtenLine = readLine;
                         }
 
-                        if (reader.Peek() >= 0)
-                        {
-                            writer.WriteLine(writtenLine);
-                        }
-                        else
-                        {
-                            writer.Write(writtenLine);
-                        }
+                        writer.Write(writtenLine);
                     }
                 }
             }
 
             if (oldAssemblyVersion == null)
             {
-                throw new InvalidOperationException("Could not find assembly version in file " + assemblyInfoFile.FullPath);
+                throw new InvalidOperationException("Could not find assembly version in file " +
+                                                    assemblyInfoFile.FullPath);
             }
             if (oldAssemblyFileVersion == null)
             {
-                throw new InvalidOperationException("Could not find assembly file version in file " + assemblyInfoFile.FullPath);
+                throw new InvalidOperationException("Could not find assembly file version in file " +
+                                                    assemblyInfoFile.FullPath);
             }
 
 
@@ -253,8 +244,8 @@ namespace Arbor.Sorbus.Core
             }
             File.Delete(tmpPath);
             var result = new AssemblyInfoPatchResult(assemblyInfoFile.FullPath, fileBackupPath,
-                                                     oldAssemblyVersion, assemblyVersion, oldAssemblyFileVersion,
-                                                     assemblyFileVersion);
+                oldAssemblyVersion, assemblyVersion, oldAssemblyFileVersion,
+                assemblyFileVersion);
 
             File.Delete(backupFile.FullName);
 
@@ -288,7 +279,7 @@ namespace Arbor.Sorbus.Core
         }
 
         static void CheckArguments(AssemblyInfoFile assemblyInfoFile, AssemblyVersion assemblyVersion,
-                                   AssemblyFileVersion assemblyFileVersion)
+            AssemblyFileVersion assemblyFileVersion)
         {
             if (assemblyInfoFile == null)
             {
@@ -306,7 +297,7 @@ namespace Arbor.Sorbus.Core
         }
 
         static void CheckArguments(IEnumerable<AssemblyInfoFile> assemblyInfoFiles, AssemblyVersion assemblyVersion,
-                                   AssemblyFileVersion assemblyFileVersion)
+            AssemblyFileVersion assemblyFileVersion)
         {
             if (assemblyInfoFiles == null)
             {

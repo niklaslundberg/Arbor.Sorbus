@@ -53,14 +53,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="when_reading_lines_with_lf.cs" />
     <Content Include="AssemblyInfo.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="AssemblyInfoMissingCRLF.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Include="when_reading_lines_with_crlf.cs" />
     <Compile Include="patch_assembly_info_base.cs" />
     <Compile Include="patch_assembly_info_base_no_crlf.cs" />
+    <Compile Include="when_patching_and_unpatching_one_assembly_file.cs" />
     <Compile Include="when_patching_an_empty_list_of_assembly_files.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="when_patching_a_list_with_one_of_assembly_file.cs" />
