@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Arbor.Aesculus.Core;
 using Newtonsoft.Json;
 
 namespace Arbor.Sorbus.Core
 {
     public sealed class AssemblyPatcher
     {
-        string _sourceBase;
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
-        
+        string _sourceBase;
+
         public string BackupBasePath()
         {
             return Path.Combine(_sourceBase, Patchedassemblyinfos);
@@ -21,7 +20,7 @@ namespace Arbor.Sorbus.Core
         public IEnumerable<PatchResult> Unpatch(PatchResult patchResult, string sourceBase)
         {
             _sourceBase = sourceBase;
-            var result =
+            List<PatchResult> result =
                 patchResult.Select(
                     file =>
                     {
@@ -38,23 +37,14 @@ namespace Arbor.Sorbus.Core
             AssemblyVersion assemblyVersion,
             AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
+            CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
 
-                CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
+            _sourceBase = sourceBase;
 
-                _sourceBase = sourceBase;
-
-                string backupBasePath = BackupBasePath();
-
-                var backupDirectory = new DirectoryInfo(backupBasePath);
-
-                if (!backupDirectory.Exists)
-                {
-                    backupDirectory.Create();
-                    backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
-                }
             var patchResult = new PatchResult();
 
-            AssemblyInfoPatchResult result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, sourceBase);
+            AssemblyInfoPatchResult result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile,
+                sourceBase);
 
             patchResult.Add(result);
 
@@ -76,7 +66,7 @@ namespace Arbor.Sorbus.Core
             var patchResult = new PatchResult();
 
 
-            var patchResults = assemblyInfoFiles
+            List<AssemblyInfoPatchResult> patchResults = assemblyInfoFiles
                 .Select(assemblyInfoFile =>
                     PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, sourceBase))
                 .ToList();
@@ -89,7 +79,7 @@ namespace Arbor.Sorbus.Core
 
         public void SavePatchResult(PatchResult patchResult)
         {
-            var resultFilePath = Path.Combine(BackupBasePath(), "Patched.txt");
+            string resultFilePath = Path.Combine(BackupBasePath(), "Patched.txt");
 
             if (!File.Exists(resultFilePath))
             {
@@ -100,7 +90,7 @@ namespace Arbor.Sorbus.Core
 
             DeleteEmptySubDirs(new DirectoryInfo(BackupBasePath()));
 
-            var json = JsonConvert.SerializeObject(patchResult.ToArray(), Formatting.Indented);
+            string json = JsonConvert.SerializeObject(patchResult.ToArray(), Formatting.Indented);
 
             File.WriteAllText(resultFilePath, json, Encoding.UTF8);
         }
@@ -113,7 +103,7 @@ namespace Arbor.Sorbus.Core
                 return;
             }
 
-            foreach (var subDir in currentDir.EnumerateDirectories())
+            foreach (DirectoryInfo subDir in currentDir.EnumerateDirectories())
             {
                 DeleteEmptySubDirs(subDir);
 
@@ -142,15 +132,25 @@ namespace Arbor.Sorbus.Core
             AssemblyFileVersion assemblyFileVersion,
             AssemblyInfoFile assemblyInfoFile, string sourceBase)
         {
+            string backupBasePath = BackupBasePath();
+
+            var backupDirectory = new DirectoryInfo(backupBasePath);
+
+            if (!backupDirectory.Exists)
+            {
+                backupDirectory.Create();
+                backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+            }
+
             var sourceFileName = new FileInfo(assemblyInfoFile.FullPath);
 
-            var relativePath = sourceFileName.FullName.Substring(sourceBase.Length);
+            string relativePath = sourceFileName.FullName.Substring(sourceBase.Length);
 
-            string fileBackupPath = Path.Combine(BackupBasePath(),relativePath);
+            string fileBackupPath = Path.Combine(BackupBasePath(), relativePath);
 
             var backupFile = new FileInfo(fileBackupPath);
 
-            var fileBackupBackupDirectory = backupFile.Directory;
+            DirectoryInfo fileBackupBackupDirectory = backupFile.Directory;
 
             if (!fileBackupBackupDirectory.Exists)
             {
@@ -162,9 +162,9 @@ namespace Arbor.Sorbus.Core
 
             AssemblyVersion oldAssemblyVersion = null;
             AssemblyFileVersion oldAssemblyFileVersion = null;
-            var encoding = Encoding.UTF8;
+            Encoding encoding = Encoding.UTF8;
 
-            var tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".cs");
+            string tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".cs");
             File.Copy(sourceFileName.FullName, tmpPath);
             using (var reader = new StreamReader(backupFile.FullName, encoding))
             {
@@ -172,16 +172,16 @@ namespace Arbor.Sorbus.Core
                 {
                     while (!reader.EndOfStream)
                     {
-                        var readLine = reader.ReadLineWithEol();
+                        string readLine = reader.ReadLineWithEol();
 
                         string writtenLine;
 
-                        var isAssemblyVersionLine =
+                        bool isAssemblyVersionLine =
                             readLine.IndexOf("[assembly: AssemblyVersion(",
                                 StringComparison.InvariantCultureIgnoreCase) >= 0;
 
 
-                        var isAssemblyFileVersionLine =
+                        bool isAssemblyFileVersionLine =
                             readLine.IndexOf("[assembly: AssemblyFileVersion(",
                                 StringComparison.InvariantCultureIgnoreCase) >= 0;
 
@@ -264,15 +264,15 @@ namespace Arbor.Sorbus.Core
                 throw new ArgumentNullException("readLine");
             }
 
-            var openQuotePosition = readLine.IndexOf('"');
+            int openQuotePosition = readLine.IndexOf('"');
 
-            var leftTrimmed = readLine.Substring(openQuotePosition + 1);
+            string leftTrimmed = readLine.Substring(openQuotePosition + 1);
 
-            var closeQuotePosition = leftTrimmed.IndexOf('"');
+            int closeQuotePosition = leftTrimmed.IndexOf('"');
 
-            var rigthTrimmed = leftTrimmed.Substring(0, closeQuotePosition);
+            string rigthTrimmed = leftTrimmed.Substring(0, closeQuotePosition);
 
-            var starReplaced = rigthTrimmed.Replace('*', '0');
+            string starReplaced = rigthTrimmed.Replace('*', '0');
 
             return Version.Parse(starReplaced);
         }
