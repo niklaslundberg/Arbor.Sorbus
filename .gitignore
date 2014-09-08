@@ -1,4 +1,11 @@
 #################
+## Custom
+#################
+
+Artifacts
+_patchedAssemblyInfos
+
+#################
 ## Eclipse
 #################
 

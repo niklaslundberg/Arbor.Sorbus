@@ -32,7 +32,7 @@ namespace Arbor.Sorbus.Core
         public void Unpatch(string sourceBase)
         {
             var patcher = new AssemblyPatcher();
-            string resultFilePath = Path.Combine(patcher.BackupBaseDirectory.FullName, "Patched.txt");
+            string resultFilePath = Path.Combine(patcher.BackupBasePath(), "Patched.txt");
 
             if (!File.Exists(resultFilePath))
             {

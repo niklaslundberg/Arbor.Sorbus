@@ -12,23 +12,10 @@ namespace Arbor.Sorbus.Core
     {
         string _sourceBase;
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
-
-        internal DirectoryInfo BackupBaseDirectory
+        
+        public string BackupBasePath()
         {
-            get
-            {
-                string backupBasePath = Path.Combine(_sourceBase, Patchedassemblyinfos);
-
-                var backupDirectory = new DirectoryInfo(backupBasePath);
-
-                if (!backupDirectory.Exists)
-                {
-                    backupDirectory.Create();
-                    backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
-                }
-
-                return backupDirectory;
-            }
+            return Path.Combine(_sourceBase, Patchedassemblyinfos);
         }
 
         public IEnumerable<PatchResult> Unpatch(PatchResult patchResult, string sourceBase)
@@ -42,7 +29,7 @@ namespace Arbor.Sorbus.Core
                         return Patch(assemblyInfoFile, file.OldAssemblyVersion, file.OldAssemblyFileVersion, sourceBase);
                     }).ToList();
 
-            DeleteEmptySubDirs(BackupBaseDirectory, true);
+            DeleteEmptySubDirs(new DirectoryInfo(BackupBasePath()), true);
 
             return result;
         }
@@ -51,12 +38,23 @@ namespace Arbor.Sorbus.Core
             AssemblyVersion assemblyVersion,
             AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
-            _sourceBase = sourceBase;
-            CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
 
+                CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
+
+                _sourceBase = sourceBase;
+
+                string backupBasePath = BackupBasePath();
+
+                var backupDirectory = new DirectoryInfo(backupBasePath);
+
+                if (!backupDirectory.Exists)
+                {
+                    backupDirectory.Create();
+                    backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                }
             var patchResult = new PatchResult();
 
-            var result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, sourceBase);
+            AssemblyInfoPatchResult result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, sourceBase);
 
             patchResult.Add(result);
 
@@ -67,6 +65,7 @@ namespace Arbor.Sorbus.Core
             AssemblyVersion assemblyVersion,
             AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
+            _sourceBase = sourceBase;
             CheckArguments(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
 
             if (!assemblyInfoFiles.Any())
@@ -90,7 +89,7 @@ namespace Arbor.Sorbus.Core
 
         public void SavePatchResult(PatchResult patchResult)
         {
-            var resultFilePath = Path.Combine(BackupBaseDirectory.FullName, "Patched.txt");
+            var resultFilePath = Path.Combine(BackupBasePath(), "Patched.txt");
 
             if (!File.Exists(resultFilePath))
             {
@@ -99,7 +98,7 @@ namespace Arbor.Sorbus.Core
                 }
             }
 
-            DeleteEmptySubDirs(BackupBaseDirectory);
+            DeleteEmptySubDirs(new DirectoryInfo(BackupBasePath()));
 
             var json = JsonConvert.SerializeObject(patchResult.ToArray(), Formatting.Indented);
 
@@ -147,7 +146,7 @@ namespace Arbor.Sorbus.Core
 
             var relativePath = sourceFileName.FullName.Substring(sourceBase.Length);
 
-            string fileBackupPath = BackupBaseDirectory.FullName + relativePath;
+            string fileBackupPath = Path.Combine(BackupBasePath(),relativePath);
 
             var backupFile = new FileInfo(fileBackupPath);
 
