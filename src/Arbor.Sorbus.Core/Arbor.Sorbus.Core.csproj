@@ -54,7 +54,6 @@
     <Compile Include="AssemblyPatcher.cs" />
     <Compile Include="AssemblyPatcherApp.cs" />
     <Compile Include="AssemblyPatcherArgs.cs" />
-    <Compile Include="AssemblyPatcherArgsParser.cs" />
     <Compile Include="AssemblyVersion.cs" />
     <Compile Include="PatchResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

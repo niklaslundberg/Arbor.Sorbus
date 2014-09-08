@@ -10,43 +10,29 @@ namespace Arbor.Sorbus.Core
 {
     public sealed class AssemblyPatcherApp
     {
-        public void PatchOrUnpatch(string[] args)
-        {
-            var parser = new AssemblyPatcherArgsParser();
-            var patcherArgs = parser.Parse(args);
-
-            if (patcherArgs == null)
-            {
-                Unpatch();
-            }
-            else
-            {
-                Patch(patcherArgs.AssemblyVersion, patcherArgs.AssemblyFileVersion);
-            }
-        }
-
-        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
+        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
             var patcher = new AssemblyPatcher();
 
-            var path = VcsPathHelper.FindVcsRootPath();
+            string path = VcsPathHelper.FindVcsRootPath();
 
-            var assemblyInfoFiles = Directory.EnumerateFiles(path, "AssemblyInfo.cs", SearchOption.AllDirectories)
-                                             .Where(file =>
-                                                    file.IndexOf(AssemblyPatcher.Patchedassemblyinfos,
-                                                                 StringComparison.InvariantCultureIgnoreCase) < 0)
-                                             .Select(file => new AssemblyInfoFile(file))
-                                             .ToReadOnly();
+            IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
+                Directory.EnumerateFiles(path, "AssemblyInfo.cs", SearchOption.AllDirectories)
+                    .Where(file =>
+                        file.IndexOf(AssemblyPatcher.Patchedassemblyinfos,
+                            StringComparison.InvariantCultureIgnoreCase) < 0)
+                    .Select(file => new AssemblyInfoFile(file))
+                    .ToReadOnly();
 
-            var result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
+            PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion, sourceBase);
 
             patcher.SavePatchResult(result);
         }
 
-        public void Unpatch()
+        public void Unpatch(string sourceBase)
         {
             var patcher = new AssemblyPatcher();
-            var resultFilePath = System.IO.Path.Combine(patcher.BackupBaseDirectory.FullName, "Patched.txt");
+            string resultFilePath = Path.Combine(patcher.BackupBaseDirectory.FullName, "Patched.txt");
 
             if (!File.Exists(resultFilePath))
             {
@@ -54,31 +40,31 @@ namespace Arbor.Sorbus.Core
                 return;
             }
 
-            var json = File.ReadAllText(resultFilePath, Encoding.UTF8);
+            string json = File.ReadAllText(resultFilePath, Encoding.UTF8);
             var deserialized = JsonConvert.DeserializeObject<List<AssemblyInfoPatchResult>>(json);
 
             var patchResult = new PatchResult();
 
             deserialized.ForEach(patchResult.Add);
 
-            var unpatched =
-                patcher.Unpatch(patchResult)
-                       .SelectMany(
-                           results =>
-                           results.Where(
-                               result =>
-                               result.AssemblyVersion.Version != result.OldAssemblyVersion.Version ||
-                               result.AssemblyFileVersion.Version != result.OldAssemblyFileVersion.Version))
-                       .ToList();
+            List<AssemblyInfoPatchResult> unpatched =
+                patcher.Unpatch(patchResult, sourceBase)
+                    .SelectMany(
+                        results =>
+                            results.Where(
+                                result =>
+                                    result.AssemblyVersion.Version != result.OldAssemblyVersion.Version ||
+                                    result.AssemblyFileVersion.Version != result.OldAssemblyFileVersion.Version))
+                    .ToList();
 
-            var verb = unpatched.Count == 1 ? "was" : "were";
+            string verb = unpatched.Count == 1 ? "was" : "were";
 
             Console.WriteLine("{0} items {1} patched", unpatched.Count, verb);
 
-            foreach (var result in unpatched)
+            foreach (AssemblyInfoPatchResult result in unpatched)
             {
                 Console.WriteLine("{0} changed from version {1} to version {2}", result.FullPath,
-                                  result.OldAssemblyVersion, result.AssemblyVersion);
+                    result.OldAssemblyVersion, result.AssemblyVersion);
             }
         }
     }

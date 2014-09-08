@@ -10,14 +10,14 @@ namespace Arbor.Sorbus.Core
 {
     public sealed class AssemblyPatcher
     {
+        string _sourceBase;
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
 
-        public DirectoryInfo BackupBaseDirectory
+        internal DirectoryInfo BackupBaseDirectory
         {
             get
             {
-                var sourceBase = VcsPathHelper.FindVcsRootPath();
-                string backupBasePath = Path.Combine(sourceBase, Patchedassemblyinfos);
+                string backupBasePath = Path.Combine(_sourceBase, Patchedassemblyinfos);
 
                 var backupDirectory = new DirectoryInfo(backupBasePath);
 
@@ -31,14 +31,15 @@ namespace Arbor.Sorbus.Core
             }
         }
 
-        public IEnumerable<PatchResult> Unpatch(PatchResult patchResult)
+        public IEnumerable<PatchResult> Unpatch(PatchResult patchResult, string sourceBase)
         {
+            _sourceBase = sourceBase;
             var result =
                 patchResult.Select(
                     file =>
                     {
                         var assemblyInfoFile = new AssemblyInfoFile(file.FullPath);
-                        return Patch(assemblyInfoFile, file.OldAssemblyVersion, file.OldAssemblyFileVersion);
+                        return Patch(assemblyInfoFile, file.OldAssemblyVersion, file.OldAssemblyFileVersion, sourceBase);
                     }).ToList();
 
             DeleteEmptySubDirs(BackupBaseDirectory, true);
@@ -46,16 +47,16 @@ namespace Arbor.Sorbus.Core
             return result;
         }
 
-        public PatchResult Patch(AssemblyInfoFile assemblyInfoFile,
+        PatchResult Patch(AssemblyInfoFile assemblyInfoFile,
             AssemblyVersion assemblyVersion,
-            AssemblyFileVersion assemblyFileVersion)
+            AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
+            _sourceBase = sourceBase;
             CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
 
             var patchResult = new PatchResult();
 
-
-            var result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile);
+            var result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, sourceBase);
 
             patchResult.Add(result);
 
@@ -64,7 +65,7 @@ namespace Arbor.Sorbus.Core
 
         public PatchResult Patch(IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles,
             AssemblyVersion assemblyVersion,
-            AssemblyFileVersion assemblyFileVersion)
+            AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
             CheckArguments(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
 
@@ -78,7 +79,7 @@ namespace Arbor.Sorbus.Core
 
             var patchResults = assemblyInfoFiles
                 .Select(assemblyInfoFile =>
-                    PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile))
+                    PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, sourceBase))
                 .ToList();
 
 
@@ -140,9 +141,8 @@ namespace Arbor.Sorbus.Core
 
         AssemblyInfoPatchResult PatchAssemblyInfo(AssemblyVersion assemblyVersion,
             AssemblyFileVersion assemblyFileVersion,
-            AssemblyInfoFile assemblyInfoFile)
+            AssemblyInfoFile assemblyInfoFile, string sourceBase)
         {
-            var sourceBase = VcsPathHelper.FindVcsRootPath();
             var sourceFileName = new FileInfo(assemblyInfoFile.FullPath);
 
             var relativePath = sourceFileName.FullName.Substring(sourceBase.Length);

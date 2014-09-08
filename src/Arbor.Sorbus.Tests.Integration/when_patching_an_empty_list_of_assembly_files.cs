@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Arbor.Aesculus.Core;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
 
@@ -26,7 +27,7 @@ namespace Arbor.Sorbus.Tests.Integration
             () =>
                 {
                     patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion,
-                                                        assemblyFileVersion);
+                                                        assemblyFileVersion, VcsPathHelper.FindVcsRootPath());
                 };
 
         It should_have_patched_no_files = () => patchResult.Count.ShouldEqual(0);

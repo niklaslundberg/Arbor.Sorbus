@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Arbor.Aesculus.Core;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
 using Machine.Specifications.Annotations;
@@ -29,7 +30,7 @@ namespace Arbor.Sorbus.Tests.Integration
                         Catch.Exception(
                             () =>
                             patchResult =
-                            assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion, assemblyFileVersion));
+                            assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion, assemblyFileVersion, VcsPathHelper.FindVcsRootPath()));
                 };
 
         It should_throw_argument_null_exception = () => exception.ShouldBeOfType<ArgumentNullException>();

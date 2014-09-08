@@ -4,5 +4,6 @@
     {
         public AssemblyVersion AssemblyVersion { get; set; }
         public AssemblyFileVersion AssemblyFileVersion { get; set; }
+        public string SourceBase { get; set; }
     }
 }

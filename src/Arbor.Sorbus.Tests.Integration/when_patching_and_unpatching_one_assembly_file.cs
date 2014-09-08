@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Arbor.Aesculus.Core;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
 
@@ -35,13 +36,13 @@ namespace Arbor.Sorbus.Tests.Integration
                 originalText = File.ReadAllText(assemblyInfoPath, Encoding.UTF8);
                 
                 patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion,
-                                                    assemblyFileVersion);
+                                                    assemblyFileVersion, VcsPathHelper.FindVcsRootPath());
             };
 
         Because of =
             () =>
                 {
-                    unpatchedResults = assemblyPatcher.Unpatch(patchResult);
+                    unpatchedResults = assemblyPatcher.Unpatch(patchResult, VcsPathHelper.FindVcsRootPath());
                     unpatchedHash = ComputeHash(assemblyInfoPath);
 
                     unpatchedText = File.ReadAllText(assemblyInfoPath, Encoding.UTF8);

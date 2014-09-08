@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Arbor.Aesculus.Core;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
 
@@ -28,7 +29,7 @@ namespace Arbor.Sorbus.Tests.Integration
 
                 firstPatchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(),
                                                     new AssemblyVersion(new Version(1, 2, 0, 0)),
-                                                    new AssemblyFileVersion(new Version(1, 2, 3, 4)));
+                                                    new AssemblyFileVersion(new Version(1, 2, 3, 4)), VcsPathHelper.FindVcsRootPath());
 
                 assemblyVersion = new AssemblyVersion(new Version(2, 3, 0, 0));
                 assemblyFileVersion = new AssemblyFileVersion(new Version(2, 3, 4, 5));
@@ -38,7 +39,7 @@ namespace Arbor.Sorbus.Tests.Integration
             () =>
                 {
                     patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion,
-                                                        assemblyFileVersion);
+                                                        assemblyFileVersion, VcsPathHelper.FindVcsRootPath());
                 };
 
         It should_have_created_a_backup_file = () => File.Exists(patchResult.First().FileBackupPath).ShouldBeFalse();
