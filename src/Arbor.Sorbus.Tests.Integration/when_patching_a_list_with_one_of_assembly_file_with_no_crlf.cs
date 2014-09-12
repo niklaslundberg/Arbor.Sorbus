@@ -19,7 +19,7 @@ namespace Arbor.Sorbus.Tests.Integration
 
         Establish context = () =>
         {
-            assemblyPatcher = new AssemblyPatcher();
+            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath());
             var assemblyInfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AssemblyInfoMissingCRLF.cs");
 
             assemblyInfoFiles = new List<AssemblyInfoFile>

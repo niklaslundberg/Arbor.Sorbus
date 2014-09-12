@@ -18,7 +18,7 @@ namespace Arbor.Sorbus.Tests.Integration
 
         Establish context = () =>
             {
-                assemblyPatcher = new AssemblyPatcher();
+                assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath());
                 assemblyInfoFiles = new List<AssemblyInfoFile>();
                 assemblyVersion = new AssemblyVersion(new Version(1, 0, 0, 0));
                 assemblyFileVersion = null;

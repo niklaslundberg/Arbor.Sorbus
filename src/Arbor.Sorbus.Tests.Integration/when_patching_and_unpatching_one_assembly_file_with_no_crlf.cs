@@ -21,7 +21,7 @@ namespace Arbor.Sorbus.Tests.Integration
 
         Establish context = () =>
         {
-            assemblyPatcher = new AssemblyPatcher();
+            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath());
             assemblyInfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AssemblyInfoMissingCRLF.cs");
 
 
@@ -46,7 +46,7 @@ namespace Arbor.Sorbus.Tests.Integration
         Because of =
             () =>
             {
-                unpatchedResults = assemblyPatcher.Unpatch(patchResult, VcsPathHelper.FindVcsRootPath());
+                unpatchedResults = assemblyPatcher.Unpatch(patchResult);
                 unpatchedHash = ComputeHash(assemblyInfoPath);
 
                 unpatchedText = File.ReadAllText(assemblyInfoPath, Encoding.UTF8);

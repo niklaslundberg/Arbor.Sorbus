@@ -12,7 +12,7 @@ namespace Arbor.Sorbus.Core
     {
         public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
-            var patcher = new AssemblyPatcher();
+            var patcher = new AssemblyPatcher(sourceBase);
 
             string path = VcsPathHelper.FindVcsRootPath();
 
@@ -31,7 +31,7 @@ namespace Arbor.Sorbus.Core
 
         public void Unpatch(string sourceBase)
         {
-            var patcher = new AssemblyPatcher();
+            var patcher = new AssemblyPatcher(sourceBase);
             string resultFilePath = Path.Combine(patcher.BackupBasePath(), "Patched.txt");
 
             if (!File.Exists(resultFilePath))
@@ -48,7 +48,7 @@ namespace Arbor.Sorbus.Core
             deserialized.ForEach(patchResult.Add);
 
             List<AssemblyInfoPatchResult> unpatched =
-                patcher.Unpatch(patchResult, sourceBase)
+                patcher.Unpatch(patchResult)
                     .SelectMany(
                         results =>
                             results.Where(
