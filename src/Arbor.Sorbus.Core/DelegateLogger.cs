@@ -2,7 +2,7 @@ using System;
 
 namespace Arbor.Sorbus.Core
 {
-    internal class DelegateLogger : ILogger
+    public class DelegateLogger : ILogger
     {
         readonly Action<string, string> _debug;
         readonly Action<string, string> _error;
