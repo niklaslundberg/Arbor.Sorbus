@@ -174,7 +174,7 @@ namespace Arbor.Sorbus.Core
 
             string relativePath = sourceFileName.FullName.Substring(_sourceBase.Length);
 
-            string fileBackupPath = Path.Combine(BackupBasePath(), relativePath);
+            string fileBackupPath = Path.Combine(BackupBasePath(), relativePath.TrimStart(Path.DirectorySeparatorChar));
 
             var backupFile = new FileInfo(fileBackupPath);
 
