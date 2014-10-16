@@ -2,6 +2,12 @@
 {
     public sealed class AssemblyInfoPatchResult
     {
+        public override string ToString()
+        {
+            return string.Format("AssemblyFileVersion {0}, AssemblyVersion {1}, OldAssemblyFileVersion {2}, OldAssemblyVersion {3}, FileBackupPath {4}", 
+                AssemblyFileVersion, AssemblyVersion, OldAssemblyFileVersion, OldAssemblyVersion, FileBackupPath);
+        }
+
         readonly AssemblyFileVersion _assemblyFileVersion;
         readonly AssemblyVersion _assemblyVersion;
         readonly string _fileBackupPath;

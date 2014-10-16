@@ -9,9 +9,16 @@ namespace Arbor.Sorbus.Core
 {
     public sealed class AssemblyPatcherApp
     {
+        readonly ILogger _logger;
+
+        public AssemblyPatcherApp(ILogger logger =null)
+        {
+            _logger = logger ?? new NullLogger();
+        }
+        
         public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
-            var patcher = new AssemblyPatcher(sourceBase);
+            var patcher = new AssemblyPatcher(sourceBase, _logger);
             
             IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
                 Directory.EnumerateFiles(sourceBase, "AssemblyInfo.cs", SearchOption.AllDirectories)
@@ -21,14 +28,14 @@ namespace Arbor.Sorbus.Core
                     .Select(file => new AssemblyInfoFile(file))
                     .ToReadOnly();
 
-            PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion, sourceBase);
+            PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
 
             patcher.SavePatchResult(result);
         }
 
         public void Unpatch(string sourceBase)
         {
-            var patcher = new AssemblyPatcher(sourceBase);
+            var patcher = new AssemblyPatcher(sourceBase, _logger);
             string resultFilePath = Path.Combine(patcher.BackupBasePath(), "Patched.txt");
 
             if (!File.Exists(resultFilePath))

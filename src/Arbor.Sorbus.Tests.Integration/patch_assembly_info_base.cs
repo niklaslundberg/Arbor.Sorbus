@@ -8,22 +8,22 @@ namespace Arbor.Sorbus.Tests.Integration
     public abstract class patch_assembly_info_base
     {
         Establish context = () =>
+        {
+            string startDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string assemblyInfoPath = Path.Combine(
+                VcsPathHelper.FindVcsRootPath(startDirectory), "src",
+                "Arbor.Sorbus.Tests.Integration", "AssemblyInfo.cs");
+
+            var originalfile = new FileInfo(assemblyInfoPath);
+
+            var destinationFile = new FileInfo(Path.Combine(startDirectory, "AssemblyInfo.cs"));
+
+            if (destinationFile.Exists)
             {
-                var startDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                var assemblyInfoPath = Path.Combine(
-                    VcsPathHelper.FindVcsRootPath(startDirectory), "src",
-                    "Arbor.Sorbus.Tests.Integration", "AssemblyInfo.cs");
+                destinationFile.Delete();
+            }
 
-                var originalfile = new FileInfo(assemblyInfoPath);
-
-                var destinationFile = new FileInfo(Path.Combine(startDirectory, "AssemblyInfo.cs"));
-
-                if (destinationFile.Exists)
-                {
-                    destinationFile.Delete();
-                }
-
-                originalfile.CopyTo(destinationFile.FullName);
-            };
+            originalfile.CopyTo(destinationFile.FullName);
+        };
     }
 }

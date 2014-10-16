@@ -9,8 +9,8 @@ namespace Arbor.Sorbus.Tests.Integration
     {
         Establish context = () =>
         {
-            var startDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var assemblyInfoPath = Path.Combine(
+            string startDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string assemblyInfoPath = Path.Combine(
                 VcsPathHelper.FindVcsRootPath(startDirectory), "src",
                 "Arbor.Sorbus.Tests.Integration", "AssemblyInfoMissingCRLF.cs");
 

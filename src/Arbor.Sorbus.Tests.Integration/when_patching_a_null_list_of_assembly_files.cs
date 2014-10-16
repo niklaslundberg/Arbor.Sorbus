@@ -17,22 +17,23 @@ namespace Arbor.Sorbus.Tests.Integration
         static Exception exception;
 
         Establish context = () =>
-            {
-                assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath());
-                assemblyInfoFiles = null;
-            };
+        {
+            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath(),
+                new ConsoleLogger() {LogLevel = LogLevel.Debug});
+            assemblyInfoFiles = null;
+        };
 
         Because of =
             () =>
-                {
-                    exception =
-                        Catch.Exception(
-                            () =>
-                            patchResult = assemblyPatcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion, VcsPathHelper.FindVcsRootPath()));
-                };
+            {
+                exception =
+                    Catch.Exception(
+                        () =>
+                            patchResult = assemblyPatcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion));
+            };
 
         It should_throw_an_exception = () => exception.ShouldNotBeNull();
-        It should_throw_argument_null_exception = () => exception.ShouldBeOfType<ArgumentNullException>();
+        It should_throw_argument_null_exception = () => exception.ShouldBeOfExactType<ArgumentNullException>();
 
         It should_throw_have_argument_name_assembly_info_files =
             () => ((ArgumentNullException) exception).ParamName.ShouldEqual("assemblyInfoFiles");

@@ -6,7 +6,7 @@ using Machine.Specifications.Model;
 
 namespace Arbor.Sorbus.Tests.Integration
 {
-    [Subject(typeof(Subject))]
+    [Subject(typeof (Subject))]
     public class when_reading_lines_with_lf
     {
         static string text;

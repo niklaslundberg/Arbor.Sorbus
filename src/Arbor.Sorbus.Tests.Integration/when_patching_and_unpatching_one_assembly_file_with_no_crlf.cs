@@ -10,7 +10,7 @@ using Machine.Specifications;
 
 namespace Arbor.Sorbus.Tests.Integration
 {
-    [Subject(typeof(AssemblyPatcher))]
+    [Subject(typeof (AssemblyPatcher))]
     public class when_patching_and_unpatching_one_assembly_file_with_no_crlf : patch_assembly_info_base_no_crlf
     {
         static AssemblyPatcher assemblyPatcher;
@@ -18,10 +18,17 @@ namespace Arbor.Sorbus.Tests.Integration
         static AssemblyVersion assemblyVersion;
         static AssemblyFileVersion assemblyFileVersion;
         static PatchResult patchResult;
+        static IEnumerable<PatchResult> unpatchedResults;
+        static byte[] originalHash;
+        static string assemblyInfoPath;
+        static byte[] unpatchedHash;
+        static string originalText;
+        static string unpatchedText;
 
         Establish context = () =>
         {
-            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath());
+            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath(),
+                new ConsoleLogger() {LogLevel = LogLevel.Debug});
             assemblyInfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AssemblyInfoMissingCRLF.cs");
 
 
@@ -34,13 +41,13 @@ namespace Arbor.Sorbus.Tests.Integration
 
             patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(),
                 new AssemblyVersion(new Version(1, 2, 0, 0)),
-                new AssemblyFileVersion(new Version(1, 2, 3, 4)), VcsPathHelper.FindVcsRootPath());
+                new AssemblyFileVersion(new Version(1, 2, 3, 4)));
 
             originalHash = ComputeHash(assemblyInfoPath);
             originalText = File.ReadAllText(assemblyInfoPath, Encoding.UTF8);
 
             patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion,
-                assemblyFileVersion, VcsPathHelper.FindVcsRootPath());
+                assemblyFileVersion);
         };
 
         Because of =
@@ -60,6 +67,9 @@ namespace Arbor.Sorbus.Tests.Integration
         It should_have_created_a_backup_file_with_the_original_version =
             () => patchResult.First().OldAssemblyVersion.Version.ShouldEqual(new Version(1, 2, 0, 0));
 
+        It should_have_have_the_same_hash_as_the_original =
+            () => BitConverter.ToString(originalHash).ShouldEqual(BitConverter.ToString(unpatchedHash));
+
         It should_have_have_the_same_line_count =
             () =>
             {
@@ -70,33 +80,22 @@ namespace Arbor.Sorbus.Tests.Integration
                 patchLineCount.ShouldEqual(originalLineCount);
             };
 
-        It should_have_the_same_character_count = () => originalText.Length.ShouldEqual(unpatchedText.Length);
-
-        It should_have_the_same_text= () => originalText.ShouldEqual(unpatchedText);
-        
-        It should_have_have_the_same_hash_as_the_original =
-            () => BitConverter.ToString(originalHash).ShouldEqual(BitConverter.ToString(unpatchedHash));
-
         It should_have_modified_the_target_version =
             () => File.ReadAllText(patchResult.First().FullPath).ShouldContain("1.2.3.4");
 
         It should_have_patched_one_file = () => patchResult.Count.ShouldEqual(1);
+        It should_have_the_same_character_count = () => originalText.Length.ShouldEqual(unpatchedText.Length);
+
+        It should_have_the_same_text = () => originalText.ShouldEqual(unpatchedText);
 
         It should_still_have_the_target_assembly_file_info_exist =
             () => File.Exists(patchResult.First().FullPath).ShouldBeTrue();
 
-        static IEnumerable<PatchResult> unpatchedResults;
-        static byte[] originalHash;
-        static string assemblyInfoPath;
-        static byte[] unpatchedHash;
-        static string originalText;
-        static string unpatchedText;
-
         static byte[] ComputeHash(string file)
         {
-            using (var md5 = MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
-                using (var stream = File.OpenRead(file))
+                using (FileStream stream = File.OpenRead(file))
                 {
                     return md5.ComputeHash(stream);
                 }

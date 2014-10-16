@@ -8,7 +8,7 @@ using Machine.Specifications;
 
 namespace Arbor.Sorbus.Tests.Integration
 {
-    [Subject(typeof(AssemblyPatcher))]
+    [Subject(typeof (AssemblyPatcher))]
     public class when_patching_a_list_with_one_of_assembly_file_with_no_crlf : patch_assembly_info_base_no_crlf
     {
         static AssemblyPatcher assemblyPatcher;
@@ -19,8 +19,9 @@ namespace Arbor.Sorbus.Tests.Integration
 
         Establish context = () =>
         {
-            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath());
-            var assemblyInfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AssemblyInfoMissingCRLF.cs");
+            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath(),
+                new ConsoleLogger() {LogLevel = LogLevel.Debug});
+            string assemblyInfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AssemblyInfoMissingCRLF.cs");
 
             assemblyInfoFiles = new List<AssemblyInfoFile>
                                 {
@@ -31,14 +32,14 @@ namespace Arbor.Sorbus.Tests.Integration
 
             patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(),
                 new AssemblyVersion(new Version(1, 2, 0, 0)),
-                new AssemblyFileVersion(new Version(1, 2, 3, 4)), VcsPathHelper.FindVcsRootPath());
+                new AssemblyFileVersion(new Version(1, 2, 3, 4)));
         };
 
         Because of =
             () =>
             {
                 patchResult = assemblyPatcher.Patch(assemblyInfoFiles.ToReadOnly(), assemblyVersion,
-                    assemblyFileVersion, VcsPathHelper.FindVcsRootPath());
+                    assemblyFileVersion);
             };
 
         It should_have_created_a_backup_file = () => File.Exists(patchResult.First().FileBackupPath).ShouldBeFalse();

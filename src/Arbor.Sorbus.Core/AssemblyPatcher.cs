@@ -11,9 +11,12 @@ namespace Arbor.Sorbus.Core
     {
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
         readonly string _sourceBase;
+        readonly ILogger _logger;
 
-        public AssemblyPatcher(string sourceBase)
+        public AssemblyPatcher(string sourceBase, ILogger logger = null)
         {
+            _logger = logger ?? new NullLogger();
+
             if (string.IsNullOrWhiteSpace(sourceBase))
             {
                 throw new ArgumentNullException("sourceBase");
@@ -21,7 +24,8 @@ namespace Arbor.Sorbus.Core
 
             if (!Directory.Exists(sourceBase))
             {
-                throw new IOException(string.Format("The specified source base directory '{0}' does not exist", sourceBase));
+                throw new IOException(string.Format("The specified source base directory '{0}' does not exist",
+                    sourceBase));
             }
 
             _sourceBase = sourceBase;
@@ -34,6 +38,8 @@ namespace Arbor.Sorbus.Core
 
         public IEnumerable<PatchResult> Unpatch(PatchResult patchResult)
         {
+            _logger.WriteVerbose(string.Format("Unpatching from patch result {0}", string.Join(Environment.NewLine, patchResult.Select(item => item.ToString()))));
+
             List<PatchResult> result =
                 patchResult.Select(
                     file =>
@@ -64,8 +70,7 @@ namespace Arbor.Sorbus.Core
         }
 
         public PatchResult Patch(IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles,
-            AssemblyVersion assemblyVersion,
-            AssemblyFileVersion assemblyFileVersion, string sourceBase)
+            AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
         {
             CheckArguments(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
 
@@ -113,7 +118,7 @@ namespace Arbor.Sorbus.Core
             {
                 return;
             }
-
+            
             foreach (DirectoryInfo subDir in currentDir.EnumerateDirectories())
             {
                 DeleteEmptySubDirs(subDir);
@@ -133,6 +138,7 @@ namespace Arbor.Sorbus.Core
                     currentDir.Refresh();
                     if (currentDir.Exists)
                     {
+                        _logger.WriteVerbose(string.Format("Deleting directory '{0}'", currentDir.FullName));
                         currentDir.Delete();
                     }
                 }
@@ -144,13 +150,24 @@ namespace Arbor.Sorbus.Core
             AssemblyInfoFile assemblyInfoFile)
         {
             string backupBasePath = BackupBasePath();
-
             var backupDirectory = new DirectoryInfo(backupBasePath);
 
-            if (!backupDirectory.Exists)
+            _logger.WriteVerbose(string.Format("Patching assembly file '{0}', assembly version {1}, assembly file version {2}", assemblyInfoFile.FullPath, assemblyVersion.Version, assemblyFileVersion.Version));
+
+            try
             {
-                backupDirectory.Create();
-                backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                _logger.WriteDebug(string.Format("Assembly info patch backup directory is '{0}'", backupDirectory.FullName));
+                if (!backupDirectory.Exists)
+                {
+                    _logger.WriteVerbose(string.Format("Creating assembly info patch backup directory '{0}'", backupDirectory.FullName));
+                    backupDirectory.Create();
+                    backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    string.Format("Backup base path is '{0}', exists: {1}", backupBasePath, backupDirectory.Exists), ex);
             }
 
             var sourceFileName = new FileInfo(assemblyInfoFile.FullPath);
@@ -165,17 +182,29 @@ namespace Arbor.Sorbus.Core
 
             if (!fileBackupBackupDirectory.Exists)
             {
-                fileBackupBackupDirectory.Create();
+                try
+                {
+                    _logger.WriteVerbose(string.Format("Creating assembly info patch backup directory '{0}' for file '{1}'", fileBackupBackupDirectory.FullName, assemblyInfoFile.FullPath));
+                    fileBackupBackupDirectory.Create();
+                }
+                catch (Exception ex)
+                {
+                    throw new IOException(
+                        string.Format("Could not create directory '{0}'", fileBackupBackupDirectory.FullName), ex);
+                }
             }
 
+            _logger.WriteVerbose(string.Format("Copying file '{0}' to backup '{1}'", sourceFileName.FullName, fileBackupPath));
             File.Copy(sourceFileName.FullName, fileBackupPath, true);
-
-
+            
             AssemblyVersion oldAssemblyVersion = null;
             AssemblyFileVersion oldAssemblyFileVersion = null;
             Encoding encoding = Encoding.UTF8;
 
             string tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".cs");
+
+            _logger.WriteVerbose(string.Format("Copying file '{0}' to temp file '{1}'", sourceFileName.FullName, tmpPath));
+
             File.Copy(sourceFileName.FullName, tmpPath);
             using (var reader = new StreamReader(backupFile.FullName, encoding))
             {
@@ -252,11 +281,14 @@ namespace Arbor.Sorbus.Core
                 }
                 File.Copy(tmpPath, sourceFileName.FullName);
             }
+
+            _logger.WriteVerbose(string.Format("Deleting temp file '{0}'", tmpPath));
             File.Delete(tmpPath);
             var result = new AssemblyInfoPatchResult(assemblyInfoFile.FullPath, fileBackupPath,
                 oldAssemblyVersion, assemblyVersion, oldAssemblyFileVersion,
                 assemblyFileVersion);
 
+            _logger.WriteVerbose(string.Format("Deleting backup file '{0}'", backupFile.FullName));
             File.Delete(backupFile.FullName);
 
             if (!fileBackupBackupDirectory.EnumerateDirectories().Any() &&
