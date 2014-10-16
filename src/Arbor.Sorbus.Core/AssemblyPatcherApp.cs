@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Arbor.Aesculus.Core;
 using Newtonsoft.Json;
 
 namespace Arbor.Sorbus.Core
@@ -13,11 +12,9 @@ namespace Arbor.Sorbus.Core
         public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
             var patcher = new AssemblyPatcher(sourceBase);
-
-            string path = VcsPathHelper.FindVcsRootPath();
-
+            
             IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
-                Directory.EnumerateFiles(path, "AssemblyInfo.cs", SearchOption.AllDirectories)
+                Directory.EnumerateFiles(sourceBase, "AssemblyInfo.cs", SearchOption.AllDirectories)
                     .Where(file =>
                         file.IndexOf(AssemblyPatcher.Patchedassemblyinfos,
                             StringComparison.InvariantCultureIgnoreCase) < 0)
