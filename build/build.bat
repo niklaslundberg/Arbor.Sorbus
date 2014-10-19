@@ -5,7 +5,7 @@ SET Arbor.X.Tools.External.MSpec.Enabled=
 
 SET Version.Major=0
 SET Version.Minor=1
-SET Version.Patch=24
-SET Version.Build=3
+SET Version.Patch=25
+SET Version.Build=1
 
 CALL "%~dp0\Build.exe"

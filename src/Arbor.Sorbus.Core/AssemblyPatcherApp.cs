@@ -19,12 +19,18 @@ namespace Arbor.Sorbus.Core
         public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase)
         {
             var patcher = new AssemblyPatcher(sourceBase, _logger);
-            
+
+
+
             IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
                 Directory.EnumerateFiles(sourceBase, "AssemblyInfo.cs", SearchOption.AllDirectories)
                     .Where(file =>
                         file.IndexOf(AssemblyPatcher.Patchedassemblyinfos,
                             StringComparison.InvariantCultureIgnoreCase) < 0)
+                    .Where(
+                        file =>
+                            file.IndexOf(string.Format("{0}packages{0}", Path.DirectorySeparatorChar),
+                                StringComparison.InvariantCultureIgnoreCase) < 0)
                     .Select(file => new AssemblyInfoFile(file))
                     .ToReadOnly();
 
