@@ -56,6 +56,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="when_patching_other_file_name.cs" />
+    <Compile Include="when_patching_other_file_name_pattern.cs" />
     <Compile Include="when_reading_lines_with_lf.cs" />
     <Content Include="AssemblyInfo.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

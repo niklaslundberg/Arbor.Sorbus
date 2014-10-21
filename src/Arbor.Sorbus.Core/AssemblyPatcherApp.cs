@@ -16,14 +16,12 @@ namespace Arbor.Sorbus.Core
             _logger = logger ?? new NullLogger();
         }
         
-        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase)
+        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase, string assemblyfilePattern = "AssemblyInfo.cs")
         {
             var patcher = new AssemblyPatcher(sourceBase, _logger);
-
-
-
+            
             IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
-                Directory.EnumerateFiles(sourceBase, "AssemblyInfo.cs", SearchOption.AllDirectories)
+                Directory.EnumerateFiles(sourceBase, assemblyfilePattern, SearchOption.AllDirectories)
                     .Where(file =>
                         file.IndexOf(AssemblyPatcher.Patchedassemblyinfos,
                             StringComparison.InvariantCultureIgnoreCase) < 0)
@@ -35,7 +33,7 @@ namespace Arbor.Sorbus.Core
                     .ToReadOnly();
 
             PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
-
+            
             patcher.SavePatchResult(result);
         }
 

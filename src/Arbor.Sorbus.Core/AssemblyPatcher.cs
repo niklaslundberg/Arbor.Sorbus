@@ -87,15 +87,21 @@ namespace Arbor.Sorbus.Core
                     PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile))
                 .ToList();
 
-
-            patchResults.ForEach(patchResult.Add);
+            patchResults.Where(result => result.Succeeded).ToList().ForEach(patchResult.Add);
 
             return patchResult;
         }
 
         public void SavePatchResult(PatchResult patchResult)
         {
-            string resultFilePath = Path.Combine(BackupBasePath(), "Patched.txt");
+            string backupBasePath = BackupBasePath();
+
+            if (!Directory.Exists(backupBasePath))
+            {
+                Directory.CreateDirectory(backupBasePath);
+            }
+
+            string resultFilePath = Path.Combine(backupBasePath, "Patched.txt");
 
             if (!File.Exists(resultFilePath))
             {
@@ -104,7 +110,7 @@ namespace Arbor.Sorbus.Core
                 }
             }
 
-            DeleteEmptySubDirs(new DirectoryInfo(BackupBasePath()));
+            DeleteEmptySubDirs(new DirectoryInfo(backupBasePath));
 
             string json = JsonConvert.SerializeObject(patchResult.ToArray(), Formatting.Indented);
 
@@ -262,31 +268,37 @@ namespace Arbor.Sorbus.Core
 
             if (oldAssemblyVersion == null)
             {
-                throw new InvalidOperationException("Could not find assembly version in file " +
-                                                    assemblyInfoFile.FullPath);
+                _logger.WriteWarning(string.Format("Could not find assembly version in file {0}", assemblyInfoFile.FullPath));
             }
             if (oldAssemblyFileVersion == null)
             {
-                throw new InvalidOperationException("Could not find assembly file version in file " +
-                                                    assemblyInfoFile.FullPath);
+                _logger.WriteWarning(string.Format("Could not find assembly file version in file {0}", assemblyInfoFile.FullPath));
             }
-
-
-            if (assemblyVersion.Version != oldAssemblyVersion.Version ||
-                assemblyFileVersion.Version != oldAssemblyFileVersion.Version)
+            AssemblyInfoPatchResult result;
+            if (oldAssemblyVersion != null && oldAssemblyFileVersion != null)
             {
-                if (File.Exists(sourceFileName.FullName))
+
+                if (assemblyVersion.Version != oldAssemblyVersion.Version ||
+                    assemblyFileVersion.Version != oldAssemblyFileVersion.Version)
                 {
-                    File.Delete(sourceFileName.FullName);
+                    if (File.Exists(sourceFileName.FullName))
+                    {
+                        File.Delete(sourceFileName.FullName);
+                    }
+                    File.Copy(tmpPath, sourceFileName.FullName);
                 }
-                File.Copy(tmpPath, sourceFileName.FullName);
+
+                result = new AssemblyInfoPatchResult(assemblyInfoFile.FullPath, fileBackupPath,
+                    oldAssemblyVersion, assemblyVersion, oldAssemblyFileVersion,
+                    assemblyFileVersion);
+            }
+            else
+            {
+                result = AssemblyInfoPatchResult.Failed(backupFile.FullName);
             }
 
             _logger.WriteVerbose(string.Format("Deleting temp file '{0}'", tmpPath));
             File.Delete(tmpPath);
-            var result = new AssemblyInfoPatchResult(assemblyInfoFile.FullPath, fileBackupPath,
-                oldAssemblyVersion, assemblyVersion, oldAssemblyFileVersion,
-                assemblyFileVersion);
 
             _logger.WriteVerbose(string.Format("Deleting backup file '{0}'", backupFile.FullName));
             File.Delete(backupFile.FullName);
