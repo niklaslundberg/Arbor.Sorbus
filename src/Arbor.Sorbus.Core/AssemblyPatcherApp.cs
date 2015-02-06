@@ -23,7 +23,7 @@ namespace Arbor.Sorbus.Core
             IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
                 Directory.EnumerateFiles(sourceBase, assemblyfilePattern, SearchOption.AllDirectories)
                     .Where(file =>
-                        file.IndexOf(AssemblyPatcher.Patchedassemblyinfos,
+                        file.IndexOf(patcher.PatchedassemblyinfosPath,
                             StringComparison.InvariantCultureIgnoreCase) < 0)
                     .Where(
                         file =>

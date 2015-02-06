@@ -10,10 +10,11 @@ namespace Arbor.Sorbus.Core
     public sealed class AssemblyPatcher
     {
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
+        public readonly string PatchedassemblyinfosPath;
         readonly string _sourceBase;
         readonly ILogger _logger;
 
-        public AssemblyPatcher(string sourceBase, ILogger logger = null)
+        public AssemblyPatcher(string sourceBase, ILogger logger = null, string tempPath = null)
         {
             _logger = logger ?? new NullLogger();
 
@@ -28,12 +29,28 @@ namespace Arbor.Sorbus.Core
                     sourceBase));
             }
 
+            if (!string.IsNullOrWhiteSpace(tempPath))
+            {
+                if (Path.IsPathRooted(tempPath))
+                {
+                    PatchedassemblyinfosPath = Path.Combine(tempPath, Patchedassemblyinfos);
+                }
+                else
+                {
+                    PatchedassemblyinfosPath = Path.Combine(sourceBase, tempPath, Patchedassemblyinfos);
+                }
+            }
+            else
+            {
+                PatchedassemblyinfosPath = Path.Combine(sourceBase, "build", "temp", Patchedassemblyinfos);
+            }
+
             _sourceBase = sourceBase;
         }
 
         public string BackupBasePath()
         {
-            return Path.Combine(_sourceBase, Patchedassemblyinfos);
+            return Path.Combine(_sourceBase, PatchedassemblyinfosPath);
         }
 
         public IEnumerable<PatchResult> Unpatch(PatchResult patchResult)
@@ -185,6 +202,11 @@ namespace Arbor.Sorbus.Core
             var backupFile = new FileInfo(fileBackupPath);
 
             DirectoryInfo fileBackupBackupDirectory = backupFile.Directory;
+
+            if (fileBackupBackupDirectory == null)
+            {
+                throw new InvalidOperationException("The backup file directory is null");
+            }
 
             if (!fileBackupBackupDirectory.Exists)
             {
