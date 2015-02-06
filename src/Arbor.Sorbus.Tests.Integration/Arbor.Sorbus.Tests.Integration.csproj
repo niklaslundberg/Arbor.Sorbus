@@ -56,6 +56,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AssemblyInfoMetadata.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="patch_assembly_info_with_metadata.cs" />
     <Compile Include="when_creating_a_new_instance_with_relative_temp_path.cs" />
     <Compile Include="when_creating_a_new_instance_with_absolute_temp_path.cs" />
     <Compile Include="when_patching_other_file_name.cs" />

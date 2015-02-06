@@ -16,7 +16,7 @@ namespace Arbor.Sorbus.Core
             _logger = logger ?? new NullLogger();
         }
         
-        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase, string assemblyfilePattern = "AssemblyInfo.cs")
+        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase, string assemblyfilePattern = "AssemblyInfo.cs", AssemblyMetaData assemblyMetaData = null)
         {
             var patcher = new AssemblyPatcher(sourceBase, _logger);
             
@@ -32,7 +32,7 @@ namespace Arbor.Sorbus.Core
                     .Select(file => new AssemblyInfoFile(file))
                     .ToReadOnly();
 
-            PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
+            PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion, assemblyMetaData);
             
             patcher.SavePatchResult(result);
         }

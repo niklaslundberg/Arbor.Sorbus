@@ -62,7 +62,7 @@ namespace Arbor.Sorbus.Core
                     file =>
                     {
                         var assemblyInfoFile = new AssemblyInfoFile(file.FullPath);
-                        return Patch(assemblyInfoFile, file.OldAssemblyVersion, file.OldAssemblyFileVersion);
+                        return Patch(assemblyInfoFile, file.OldAssemblyVersion, file.OldAssemblyFileVersion, file.OldAssemblyMetadata);
                     }).ToList();
 
             DeleteEmptySubDirs(new DirectoryInfo(BackupBasePath()), true);
@@ -72,22 +72,21 @@ namespace Arbor.Sorbus.Core
 
         PatchResult Patch(AssemblyInfoFile assemblyInfoFile,
             AssemblyVersion assemblyVersion,
-            AssemblyFileVersion assemblyFileVersion)
+            AssemblyFileVersion assemblyFileVersion, AssemblyMetaData assemblyMetaData = null)
         {
             CheckArguments(assemblyInfoFile, assemblyVersion, assemblyFileVersion);
 
 
             var patchResult = new PatchResult();
 
-            AssemblyInfoPatchResult result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile);
+            AssemblyInfoPatchResult result = PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, assemblyMetaData);
 
             patchResult.Add(result);
 
             return patchResult;
         }
 
-        public PatchResult Patch(IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles,
-            AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion)
+        public PatchResult Patch(IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles, AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, AssemblyMetaData assemblyMetaData = null)
         {
             CheckArguments(assemblyInfoFiles, assemblyVersion, assemblyFileVersion);
 
@@ -101,7 +100,7 @@ namespace Arbor.Sorbus.Core
 
             List<AssemblyInfoPatchResult> patchResults = assemblyInfoFiles
                 .Select(assemblyInfoFile =>
-                    PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile))
+                    PatchAssemblyInfo(assemblyVersion, assemblyFileVersion, assemblyInfoFile, assemblyMetaData))
                 .ToList();
 
             patchResults.Where(result => result.Succeeded).ToList().ForEach(patchResult.Add);
@@ -170,7 +169,8 @@ namespace Arbor.Sorbus.Core
 
         AssemblyInfoPatchResult PatchAssemblyInfo(AssemblyVersion assemblyVersion,
             AssemblyFileVersion assemblyFileVersion,
-            AssemblyInfoFile assemblyInfoFile)
+            AssemblyInfoFile assemblyInfoFile, 
+            AssemblyMetaData assemblyMetaData)
         {
             string backupBasePath = BackupBasePath();
             var backupDirectory = new DirectoryInfo(backupBasePath);
@@ -233,6 +233,13 @@ namespace Arbor.Sorbus.Core
 
             _logger.WriteVerbose(string.Format("Copying file '{0}' to temp file '{1}'", sourceFileName.FullName, tmpPath));
 
+            string oldDescription = null;
+            string oldCompany = null;
+            string oldCopyright = null;
+            string oldTrademark = null;
+            string oldProduct = null;
+            string oldConfiguration = null;
+
             File.Copy(sourceFileName.FullName, tmpPath);
             using (var reader = new StreamReader(backupFile.FullName, encoding))
             {
@@ -251,6 +258,30 @@ namespace Arbor.Sorbus.Core
 
                         bool isAssemblyFileVersionLine =
                             readLine.IndexOf("[assembly: AssemblyFileVersion(",
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
+
+                        bool isAssemblyDescriptionLine =
+                            readLine.IndexOf("[assembly: AssemblyDescription(",
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
+
+                        bool isAssemblyCompanyLine =
+                            readLine.IndexOf("[assembly: AssemblyCompany(",
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
+
+                        bool isAssemblyTrademarkLine =
+                            readLine.IndexOf("[assembly: AssemblyTrademark(",
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
+
+                        bool isAssemblyCopyrightLine =
+                            readLine.IndexOf("[assembly: AssemblyCopyright(",
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
+
+                        bool isAssemblyProductLine =
+                            readLine.IndexOf("[assembly: AssemblyProduct(",
+                                StringComparison.InvariantCultureIgnoreCase) >= 0;
+
+                        bool isAssemblyConfigurationLine =
+                            readLine.IndexOf("[assembly: AssemblyConfiguration(",
                                 StringComparison.InvariantCultureIgnoreCase) >= 0;
 
                         bool lineIsComment = readLine.Trim().StartsWith("//");
@@ -278,6 +309,49 @@ namespace Arbor.Sorbus.Core
                                 assemblyFileVersion.Version.Build,
                                 assemblyFileVersion.Version.Revision) + readLine.NewLine();
                         }
+                        else if (assemblyMetaData != null)
+                        {
+                            if (isAssemblyDescriptionLine && assemblyMetaData.Description != null)
+                            {
+                                oldDescription = ParseAttribute(readLine);
+                                writtenLine = string.Format("[assembly: AssemblyDescription(\"{0}\")]{1}",
+                                    assemblyMetaData.Description, readLine.NewLine());
+                            }
+                            else if (isAssemblyConfigurationLine && assemblyMetaData.Configuration != null)
+                            {
+                                oldConfiguration = ParseAttribute(readLine);
+                                writtenLine = string.Format("[assembly: AssemblyConfiguration(\"{0}\")]{1}",
+                                    assemblyMetaData.Configuration, readLine.NewLine());
+                            }
+                            else if (isAssemblyCopyrightLine && assemblyMetaData.Copyright != null)
+                            {
+                                oldCopyright = ParseAttribute(readLine);
+                                writtenLine = string.Format("[assembly: AssemblyCopyright(\"{0}\")]{1}",
+                                    assemblyMetaData.Copyright, readLine.NewLine());
+                            }
+                            else if (isAssemblyCompanyLine && assemblyMetaData.Company != null)
+                            {
+                                oldCompany = ParseAttribute(readLine);
+                                writtenLine = string.Format("[assembly: AssemblyCompany(\"{0}\")]{1}",
+                                    assemblyMetaData.Company, readLine.NewLine());
+                            }
+                            else if (isAssemblyTrademarkLine && assemblyMetaData.Trademark != null)
+                            {
+                                oldTrademark = ParseAttribute(readLine);
+                                writtenLine = string.Format("[assembly: AssemblyTrademark(\"{0}\")]{1}",
+                                    assemblyMetaData.Trademark, readLine.NewLine());
+                            }
+                            else if (isAssemblyProductLine && assemblyMetaData.Product != null)
+                            {
+                                oldProduct = ParseAttribute(readLine);
+                                writtenLine = string.Format("[assembly: AssemblyProduct(\"{0}\")]{1}",
+                                    assemblyMetaData.Product, readLine.NewLine());
+                            }
+                            else
+                            {
+                                writtenLine = readLine;
+                            }
+                        }
                         else
                         {
                             writtenLine = readLine;
@@ -287,6 +361,7 @@ namespace Arbor.Sorbus.Core
                     }
                 }
             }
+
 
             if (oldAssemblyVersion == null)
             {
@@ -310,9 +385,11 @@ namespace Arbor.Sorbus.Core
                     File.Copy(tmpPath, sourceFileName.FullName);
                 }
 
+                var oldAssemblyMetadata = new AssemblyMetaData(oldDescription, oldConfiguration, oldCompany, oldProduct, oldCopyright, oldTrademark);
+
                 result = new AssemblyInfoPatchResult(assemblyInfoFile.FullPath, fileBackupPath,
                     oldAssemblyVersion, assemblyVersion, oldAssemblyFileVersion,
-                    assemblyFileVersion);
+                    assemblyFileVersion, newAssemblyMetadata: assemblyMetaData, oldAssemblyMetadata: oldAssemblyMetadata);
             }
             else
             {
@@ -332,6 +409,31 @@ namespace Arbor.Sorbus.Core
             }
 
             return result;
+        }
+
+        string ParseAttribute(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            if (value.StartsWith("[assembly: Assembly", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var trimmed = value.Trim().Replace("[assembly: Assembly", "").Replace(@""")]", "");
+
+                int startIndex = trimmed.IndexOf("(\"", StringComparison.InvariantCultureIgnoreCase);
+                if (startIndex < 0)
+                {
+                    return value;
+                }
+
+                var attributeValue = trimmed.Substring(startIndex + 2);
+
+                return attributeValue;
+            }
+
+            return value;
         }
 
         Version ParseVersion(string readLine)

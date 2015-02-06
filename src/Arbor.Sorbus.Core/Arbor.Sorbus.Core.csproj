@@ -52,6 +52,7 @@
     <Compile Include="AssemblyFileVersion.cs" />
     <Compile Include="AssemblyInfoFile.cs" />
     <Compile Include="AssemblyInfoPatchResult.cs" />
+    <Compile Include="AssemblyMetaData.cs" />
     <Compile Include="AssemblyPatcher.cs" />
     <Compile Include="AssemblyPatcherApp.cs" />
     <Compile Include="AssemblyPatcherArgs.cs" />

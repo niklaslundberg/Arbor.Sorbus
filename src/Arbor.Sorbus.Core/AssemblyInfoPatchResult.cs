@@ -6,13 +6,21 @@
         readonly AssemblyVersion _assemblyVersion;
         readonly string _fileBackupPath;
         readonly string _fullPath;
+        readonly AssemblyMetaData _newAssemblyMetadata;
         readonly AssemblyFileVersion _oldAssemblyFileVersion;
+        readonly AssemblyMetaData _oldAssemblyMetadata;
         readonly AssemblyVersion _oldAssemblyVersion;
-        bool _succeeded;
+        readonly bool _succeeded;
 
-        public AssemblyInfoPatchResult(string fullPath, string fileBackupPath, AssemblyVersion oldAssemblyVersion,
-            AssemblyVersion assemblyVersion, AssemblyFileVersion oldAssemblyFileVersion,
-            AssemblyFileVersion assemblyFileVersion, bool succeeded = true)
+        public AssemblyInfoPatchResult(string fullPath,
+            string fileBackupPath,
+            AssemblyVersion oldAssemblyVersion,
+            AssemblyVersion assemblyVersion,
+            AssemblyFileVersion oldAssemblyFileVersion,
+            AssemblyFileVersion assemblyFileVersion,
+            bool succeeded = true,
+            AssemblyMetaData oldAssemblyMetadata = null,
+            AssemblyMetaData newAssemblyMetadata = null)
         {
             _fullPath = fullPath;
             _fileBackupPath = fileBackupPath;
@@ -21,6 +29,18 @@
             _oldAssemblyFileVersion = oldAssemblyFileVersion;
             _assemblyFileVersion = assemblyFileVersion;
             _succeeded = succeeded;
+            _oldAssemblyMetadata = oldAssemblyMetadata;
+            _newAssemblyMetadata = newAssemblyMetadata;
+        }
+
+        public AssemblyMetaData OldAssemblyMetadata
+        {
+            get { return _oldAssemblyMetadata; }
+        }
+
+        public AssemblyMetaData NewAssemblyMetadata
+        {
+            get { return _newAssemblyMetadata; }
         }
 
         public bool Succeeded
