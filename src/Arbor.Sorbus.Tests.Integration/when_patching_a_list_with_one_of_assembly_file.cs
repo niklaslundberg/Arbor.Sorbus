@@ -33,6 +33,8 @@ namespace Arbor.Sorbus.Tests.Integration
                 new AssemblyVersion(new Version(1, 2, 0, 0)),
                 new AssemblyFileVersion(new Version(1, 2, 3, 4)));
 
+            Console.WriteLine("Backup base path: " +assemblyPatcher.BackupBasePath());
+
             assemblyVersion = new AssemblyVersion(new Version(2, 3, 0, 0));
             assemblyFileVersion = new AssemblyFileVersion(new Version(2, 3, 4, 5));
         };
