@@ -15,11 +15,28 @@ namespace Arbor.Sorbus.Core
         {
             _logger = logger ?? new NullLogger();
         }
-        
-        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase, string assemblyfilePattern = "AssemblyInfo.cs", AssemblyMetaData assemblyMetaData = null)
+
+
+        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase,
+            string assemblyfilePattern = "AssemblyInfo.cs", AssemblyMetaData assemblyMetaData = null)
         {
+            if (assemblyVersion == null)
+            {
+                throw new ArgumentNullException("assemblyVersion");
+            }
+
+            if (assemblyFileVersion == null)
+            {
+                throw new ArgumentNullException("assemblyFileVersion");
+            }
+
+            if (sourceBase == null)
+            {
+                throw new ArgumentNullException("sourceBase");
+            }
+
             var patcher = new AssemblyPatcher(sourceBase, _logger);
-            
+
             IReadOnlyCollection<AssemblyInfoFile> assemblyInfoFiles =
                 Directory.EnumerateFiles(sourceBase, assemblyfilePattern, SearchOption.AllDirectories)
                     .Where(file =>
@@ -31,8 +48,35 @@ namespace Arbor.Sorbus.Core
                                 StringComparison.InvariantCultureIgnoreCase) < 0)
                     .Select(file => new AssemblyInfoFile(file))
                     .ToReadOnly();
+            
+            Patch(assemblyVersion, assemblyFileVersion,sourceBase,assemblyInfoFiles,assemblyMetaData);
+        }
 
-            PatchResult result = patcher.Patch(assemblyInfoFiles, assemblyVersion, assemblyFileVersion, assemblyMetaData);
+        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase, IEnumerable<AssemblyInfoFile> assemblyInfoFiles, AssemblyMetaData assemblyMetaData = null)
+        {
+            if (assemblyVersion == null)
+            {
+                throw new ArgumentNullException("assemblyVersion");
+            }
+
+            if (assemblyFileVersion == null)
+            {
+                throw new ArgumentNullException("assemblyFileVersion");
+            }
+
+            if (sourceBase == null)
+            {
+                throw new ArgumentNullException("sourceBase");
+            }
+
+            if (assemblyInfoFiles == null)
+            {
+                throw new ArgumentNullException("assemblyInfoFiles");
+            }
+
+            var patcher = new AssemblyPatcher(sourceBase, _logger);
+            
+            PatchResult result = patcher.Patch(assemblyInfoFiles.ToList(), assemblyVersion, assemblyFileVersion, assemblyMetaData);
             
             patcher.SavePatchResult(result);
         }
