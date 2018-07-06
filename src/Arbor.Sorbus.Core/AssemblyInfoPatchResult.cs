@@ -81,9 +81,7 @@
         public override string ToString()
         {
             return
-                string.Format(
-                    "AssemblyFileVersion {0}, AssemblyVersion {1}, OldAssemblyFileVersion {2}, OldAssemblyVersion {3}, FileBackupPath {4}",
-                    AssemblyFileVersion, AssemblyVersion, OldAssemblyFileVersion, OldAssemblyVersion, FileBackupPath);
+                $"AssemblyFileVersion {AssemblyFileVersion}, AssemblyVersion {AssemblyVersion}, OldAssemblyFileVersion {OldAssemblyFileVersion}, OldAssemblyVersion {OldAssemblyVersion}, FileBackupPath {FileBackupPath}";
         }
 
         public static AssemblyInfoPatchResult Failed(string backupFile)

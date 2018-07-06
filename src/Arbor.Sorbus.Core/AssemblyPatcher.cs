@@ -12,21 +12,20 @@ namespace Arbor.Sorbus.Core
         public const string Patchedassemblyinfos = "_patchedAssemblyInfos";
         public readonly string PatchedassemblyinfosPath;
         readonly string _sourceBase;
-        readonly ILogger _logger;
+        readonly Action<string> _logger;
 
-        public AssemblyPatcher(string sourceBase, ILogger logger = null, string tempPath = null)
+        public AssemblyPatcher(string sourceBase, Action<string> logger = null, string tempPath = null)
         {
-            _logger = logger ?? new NullLogger();
+            _logger = logger;
 
             if (string.IsNullOrWhiteSpace(sourceBase))
             {
-                throw new ArgumentNullException("sourceBase");
+                throw new ArgumentNullException(nameof(sourceBase));
             }
 
             if (!Directory.Exists(sourceBase))
             {
-                throw new IOException(string.Format("The specified source base directory '{0}' does not exist",
-                    sourceBase));
+                throw new IOException($"The specified source base directory '{sourceBase}' does not exist");
             }
 
             if (!string.IsNullOrWhiteSpace(tempPath))
@@ -55,7 +54,8 @@ namespace Arbor.Sorbus.Core
 
         public IEnumerable<PatchResult> Unpatch(PatchResult patchResult)
         {
-            _logger.WriteVerbose(string.Format("Unpatching from patch result {0}", string.Join(Environment.NewLine, patchResult.Select(item => item.ToString()))));
+            _logger?.Invoke(
+                $"Unpatching from patch result {string.Join(Environment.NewLine, patchResult.Select(item => item.ToString()))}");
 
             List<PatchResult> result =
                 patchResult.Select(
@@ -140,7 +140,7 @@ namespace Arbor.Sorbus.Core
             {
                 return;
             }
-            
+
             foreach (DirectoryInfo subDir in currentDir.EnumerateDirectories())
             {
                 DeleteEmptySubDirs(subDir);
@@ -160,7 +160,7 @@ namespace Arbor.Sorbus.Core
                     currentDir.Refresh();
                     if (currentDir.Exists)
                     {
-                        _logger.WriteVerbose(string.Format("Deleting directory '{0}'", currentDir.FullName));
+                        _logger?.Invoke($"Deleting directory '{currentDir.FullName}'");
                         currentDir.Delete();
                     }
                 }
@@ -169,20 +169,21 @@ namespace Arbor.Sorbus.Core
 
         AssemblyInfoPatchResult PatchAssemblyInfo(AssemblyVersion assemblyVersion,
             AssemblyFileVersion assemblyFileVersion,
-            AssemblyInfoFile assemblyInfoFile, 
+            AssemblyInfoFile assemblyInfoFile,
             AssemblyMetaData assemblyMetaData)
         {
             string backupBasePath = BackupBasePath();
             var backupDirectory = new DirectoryInfo(backupBasePath);
 
-            _logger.WriteVerbose(string.Format("Patching assembly file '{0}', assembly version {1}, assembly file version {2}", assemblyInfoFile.FullPath, assemblyVersion.Version, assemblyFileVersion.Version));
+            _logger?.Invoke(
+                $"Patching assembly file '{assemblyInfoFile.FullPath}', assembly version {assemblyVersion.Version}, assembly file version {assemblyFileVersion.Version}");
 
             try
             {
-                _logger.WriteDebug(string.Format("Assembly info patch backup directory is '{0}'", backupDirectory.FullName));
+                _logger?.Invoke($"Assembly info patch backup directory is '{backupDirectory.FullName}'");
                 if (!backupDirectory.Exists)
                 {
-                    _logger.WriteVerbose(string.Format("Creating assembly info patch backup directory '{0}'", backupDirectory.FullName));
+                    _logger?.Invoke($"Creating assembly info patch backup directory '{backupDirectory.FullName}'");
                     backupDirectory.Create();
                     backupDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
                 }
@@ -190,7 +191,7 @@ namespace Arbor.Sorbus.Core
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    string.Format("Backup base path is '{0}', exists: {1}", backupBasePath, backupDirectory.Exists), ex);
+                    $"Backup base path is '{backupBasePath}', exists: {backupDirectory.Exists}", ex);
             }
 
             var sourceFileName = new FileInfo(assemblyInfoFile.FullPath);
@@ -212,26 +213,27 @@ namespace Arbor.Sorbus.Core
             {
                 try
                 {
-                    _logger.WriteVerbose(string.Format("Creating assembly info patch backup directory '{0}' for file '{1}'", fileBackupBackupDirectory.FullName, assemblyInfoFile.FullPath));
+                    _logger?.Invoke(
+                        $"Creating assembly info patch backup directory '{fileBackupBackupDirectory.FullName}' for file '{assemblyInfoFile.FullPath}'");
                     fileBackupBackupDirectory.Create();
                 }
                 catch (Exception ex)
                 {
                     throw new IOException(
-                        string.Format("Could not create directory '{0}'", fileBackupBackupDirectory.FullName), ex);
+                        $"Could not create directory '{fileBackupBackupDirectory.FullName}'", ex);
                 }
             }
 
-            _logger.WriteVerbose(string.Format("Copying file '{0}' to backup '{1}'", sourceFileName.FullName, fileBackupPath));
+            _logger?.Invoke($"Copying file '{sourceFileName.FullName}' to backup '{fileBackupPath}'");
             File.Copy(sourceFileName.FullName, fileBackupPath, true);
-            
+
             AssemblyVersion oldAssemblyVersion = null;
             AssemblyFileVersion oldAssemblyFileVersion = null;
             Encoding encoding = Encoding.UTF8;
 
             string tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".cs");
 
-            _logger.WriteVerbose(string.Format("Copying file '{0}' to temp file '{1}'", sourceFileName.FullName, tmpPath));
+            _logger?.Invoke($"Copying file '{sourceFileName.FullName}' to temp file '{tmpPath}'");
 
             string oldDescription = null;
             string oldCompany = null;
@@ -294,58 +296,52 @@ namespace Arbor.Sorbus.Core
                         {
                             oldAssemblyVersion = new AssemblyVersion(ParseVersion(readLine));
 
-                            writtenLine = string.Format("[assembly: AssemblyVersion(\"{0}.{1}.{2}.{3}\")]",
-                                assemblyVersion.Version.Major,
-                                assemblyVersion.Version.Minor,
-                                assemblyVersion.Version.Build,
-                                assemblyVersion.Version.Revision) + readLine.NewLine();
+                            writtenLine =
+                                $"[assembly: AssemblyVersion(\"{assemblyVersion.Version.Major}.{assemblyVersion.Version.Minor}.{assemblyVersion.Version.Build}.{assemblyVersion.Version.Revision}\")]" + readLine.NewLine();
                         }
                         else if (isAssemblyFileVersionLine)
                         {
                             oldAssemblyFileVersion = new AssemblyFileVersion(ParseVersion(readLine));
-                            writtenLine = string.Format("[assembly: AssemblyFileVersion(\"{0}.{1}.{2}.{3}\")]",
-                                assemblyFileVersion.Version.Major,
-                                assemblyFileVersion.Version.Minor,
-                                assemblyFileVersion.Version.Build,
-                                assemblyFileVersion.Version.Revision) + readLine.NewLine();
+                            writtenLine =
+                                $"[assembly: AssemblyFileVersion(\"{assemblyFileVersion.Version.Major}.{assemblyFileVersion.Version.Minor}.{assemblyFileVersion.Version.Build}.{assemblyFileVersion.Version.Revision}\")]" + readLine.NewLine();
                         }
                         else if (assemblyMetaData != null)
                         {
                             if (isAssemblyDescriptionLine && assemblyMetaData.Description != null)
                             {
                                 oldDescription = ParseAttribute(readLine);
-                                writtenLine = string.Format("[assembly: AssemblyDescription(\"{0}\")]{1}",
-                                    assemblyMetaData.Description, readLine.NewLine());
+                                writtenLine =
+                                    $"[assembly: AssemblyDescription(\"{assemblyMetaData.Description}\")]{readLine.NewLine()}";
                             }
                             else if (isAssemblyConfigurationLine && assemblyMetaData.Configuration != null)
                             {
                                 oldConfiguration = ParseAttribute(readLine);
-                                writtenLine = string.Format("[assembly: AssemblyConfiguration(\"{0}\")]{1}",
-                                    assemblyMetaData.Configuration, readLine.NewLine());
+                                writtenLine =
+                                    $"[assembly: AssemblyConfiguration(\"{assemblyMetaData.Configuration}\")]{readLine.NewLine()}";
                             }
                             else if (isAssemblyCopyrightLine && assemblyMetaData.Copyright != null)
                             {
                                 oldCopyright = ParseAttribute(readLine);
-                                writtenLine = string.Format("[assembly: AssemblyCopyright(\"{0}\")]{1}",
-                                    assemblyMetaData.Copyright, readLine.NewLine());
+                                writtenLine =
+                                    $"[assembly: AssemblyCopyright(\"{assemblyMetaData.Copyright}\")]{readLine.NewLine()}";
                             }
                             else if (isAssemblyCompanyLine && assemblyMetaData.Company != null)
                             {
                                 oldCompany = ParseAttribute(readLine);
-                                writtenLine = string.Format("[assembly: AssemblyCompany(\"{0}\")]{1}",
-                                    assemblyMetaData.Company, readLine.NewLine());
+                                writtenLine =
+                                    $"[assembly: AssemblyCompany(\"{assemblyMetaData.Company}\")]{readLine.NewLine()}";
                             }
                             else if (isAssemblyTrademarkLine && assemblyMetaData.Trademark != null)
                             {
                                 oldTrademark = ParseAttribute(readLine);
-                                writtenLine = string.Format("[assembly: AssemblyTrademark(\"{0}\")]{1}",
-                                    assemblyMetaData.Trademark, readLine.NewLine());
+                                writtenLine =
+                                    $"[assembly: AssemblyTrademark(\"{assemblyMetaData.Trademark}\")]{readLine.NewLine()}";
                             }
                             else if (isAssemblyProductLine && assemblyMetaData.Product != null)
                             {
                                 oldProduct = ParseAttribute(readLine);
-                                writtenLine = string.Format("[assembly: AssemblyProduct(\"{0}\")]{1}",
-                                    assemblyMetaData.Product, readLine.NewLine());
+                                writtenLine =
+                                    $"[assembly: AssemblyProduct(\"{assemblyMetaData.Product}\")]{readLine.NewLine()}";
                             }
                             else
                             {
@@ -365,11 +361,11 @@ namespace Arbor.Sorbus.Core
 
             if (oldAssemblyVersion == null)
             {
-                _logger.WriteWarning(string.Format("Could not find assembly version in file {0}", assemblyInfoFile.FullPath));
+                _logger?.Invoke($"Could not find assembly version in file {assemblyInfoFile.FullPath}");
             }
             if (oldAssemblyFileVersion == null)
             {
-                _logger.WriteWarning(string.Format("Could not find assembly file version in file {0}", assemblyInfoFile.FullPath));
+                _logger?.Invoke($"Could not find assembly file version in file {assemblyInfoFile.FullPath}");
             }
             AssemblyInfoPatchResult result;
             if (oldAssemblyVersion != null && oldAssemblyFileVersion != null)
@@ -396,10 +392,10 @@ namespace Arbor.Sorbus.Core
                 result = AssemblyInfoPatchResult.Failed(backupFile.FullName);
             }
 
-            _logger.WriteVerbose(string.Format("Deleting temp file '{0}'", tmpPath));
+            _logger?.Invoke($"Deleting temp file '{tmpPath}'");
             File.Delete(tmpPath);
 
-            _logger.WriteVerbose(string.Format("Deleting backup file '{0}'", backupFile.FullName));
+            _logger?.Invoke($"Deleting backup file '{backupFile.FullName}'");
             File.Delete(backupFile.FullName);
 
             if (!fileBackupBackupDirectory.EnumerateDirectories().Any() &&
@@ -440,7 +436,7 @@ namespace Arbor.Sorbus.Core
         {
             if (string.IsNullOrWhiteSpace(readLine))
             {
-                throw new ArgumentNullException("readLine");
+                throw new ArgumentNullException(nameof(readLine));
             }
 
             int openQuotePosition = readLine.IndexOf('"');
@@ -461,16 +457,16 @@ namespace Arbor.Sorbus.Core
         {
             if (assemblyInfoFile == null)
             {
-                throw new ArgumentNullException("assemblyInfoFile");
+                throw new ArgumentNullException(nameof(assemblyInfoFile));
             }
 
             if (assemblyVersion == null)
             {
-                throw new ArgumentNullException("assemblyVersion");
+                throw new ArgumentNullException(nameof(assemblyVersion));
             }
             if (assemblyFileVersion == null)
             {
-                throw new ArgumentNullException("assemblyFileVersion");
+                throw new ArgumentNullException(nameof(assemblyFileVersion));
             }
         }
 
@@ -479,16 +475,16 @@ namespace Arbor.Sorbus.Core
         {
             if (assemblyInfoFiles == null)
             {
-                throw new ArgumentNullException("assemblyInfoFiles");
+                throw new ArgumentNullException(nameof(assemblyInfoFiles));
             }
 
             if (assemblyVersion == null)
             {
-                throw new ArgumentNullException("assemblyVersion");
+                throw new ArgumentNullException(nameof(assemblyVersion));
             }
             if (assemblyFileVersion == null)
             {
-                throw new ArgumentNullException("assemblyFileVersion");
+                throw new ArgumentNullException(nameof(assemblyFileVersion));
             }
         }
     }

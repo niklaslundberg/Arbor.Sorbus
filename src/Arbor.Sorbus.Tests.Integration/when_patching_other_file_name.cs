@@ -13,11 +13,11 @@ namespace Arbor.Sorbus.Tests.Integration
         static string sourceBase;
         Cleanup after = () => app.Unpatch(sourceBase);
 
-        Establish context = () => { app = new AssemblyPatcherApp(new ConsoleLogger {LogLevel = LogLevel.Debug}); };
+        Establish context = () => { app = new AssemblyPatcherApp(Console.WriteLine); };
 
         Because of = () =>
         {
-            sourceBase = Path.Combine(VcsPathHelper.FindVcsRootPath(), "src",
+            sourceBase = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
                 "Arbor.Sorbus.Tests.Integration", "OtherNames", "Single");
             app.Patch(new AssemblyVersion(new Version("1.2.3.4")), new AssemblyFileVersion(new Version("1.2.0.0")),
                 sourceBase, "OtherInfo_TestPatch.cs");

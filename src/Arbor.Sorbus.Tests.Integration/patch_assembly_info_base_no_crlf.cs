@@ -11,7 +11,7 @@ namespace Arbor.Sorbus.Tests.Integration
         {
             string startDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string assemblyInfoPath = Path.Combine(
-                VcsPathHelper.FindVcsRootPath(startDirectory), "src",
+                VcsTestPathHelper.FindVcsRootPath(startDirectory), "src",
                 "Arbor.Sorbus.Tests.Integration", "AssemblyInfoMissingCRLF.cs");
 
             var originalfile = new FileInfo(assemblyInfoPath);

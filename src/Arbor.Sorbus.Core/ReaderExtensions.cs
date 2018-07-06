@@ -10,7 +10,7 @@ namespace Arbor.Sorbus.Core
          {
              if (streamReader == null)
              {
-                 throw new ArgumentNullException("streamReader");
+                 throw new ArgumentNullException(nameof(streamReader));
              }
 
              if (streamReader.Peek() < 0)

@@ -9,30 +9,33 @@ namespace Arbor.Sorbus.Core
 {
     public sealed class AssemblyPatcherApp
     {
-        readonly ILogger _logger;
+        private readonly Action<string> _logger;
 
-        public AssemblyPatcherApp(ILogger logger =null)
+        public AssemblyPatcherApp(Action<string> logger = null)
         {
-            _logger = logger ?? new NullLogger();
+            _logger = logger;
         }
 
-
-        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase,
-            string assemblyfilePattern = "AssemblyInfo.cs", AssemblyMetaData assemblyMetaData = null)
+        public void Patch(
+            AssemblyVersion assemblyVersion,
+            AssemblyFileVersion assemblyFileVersion,
+            string sourceBase,
+            string assemblyfilePattern = "AssemblyInfo.cs",
+            AssemblyMetaData assemblyMetaData = null)
         {
             if (assemblyVersion == null)
             {
-                throw new ArgumentNullException("assemblyVersion");
+                throw new ArgumentNullException(nameof(assemblyVersion));
             }
 
             if (assemblyFileVersion == null)
             {
-                throw new ArgumentNullException("assemblyFileVersion");
+                throw new ArgumentNullException(nameof(assemblyFileVersion));
             }
 
             if (sourceBase == null)
             {
-                throw new ArgumentNullException("sourceBase");
+                throw new ArgumentNullException(nameof(sourceBase));
             }
 
             var patcher = new AssemblyPatcher(sourceBase, _logger);
@@ -48,36 +51,44 @@ namespace Arbor.Sorbus.Core
                                 StringComparison.InvariantCultureIgnoreCase) < 0)
                     .Select(file => new AssemblyInfoFile(file))
                     .ToReadOnly();
-            
-            Patch(assemblyVersion, assemblyFileVersion,sourceBase,assemblyInfoFiles,assemblyMetaData);
+
+            Patch(assemblyVersion, assemblyFileVersion, sourceBase, assemblyInfoFiles, assemblyMetaData);
         }
 
-        public void Patch(AssemblyVersion assemblyVersion, AssemblyFileVersion assemblyFileVersion, string sourceBase, IEnumerable<AssemblyInfoFile> assemblyInfoFiles, AssemblyMetaData assemblyMetaData = null)
+        public void Patch(
+            AssemblyVersion assemblyVersion,
+            AssemblyFileVersion assemblyFileVersion,
+            string sourceBase,
+            IEnumerable<AssemblyInfoFile> assemblyInfoFiles,
+            AssemblyMetaData assemblyMetaData = null)
         {
             if (assemblyVersion == null)
             {
-                throw new ArgumentNullException("assemblyVersion");
+                throw new ArgumentNullException(nameof(assemblyVersion));
             }
 
             if (assemblyFileVersion == null)
             {
-                throw new ArgumentNullException("assemblyFileVersion");
+                throw new ArgumentNullException(nameof(assemblyFileVersion));
             }
 
             if (sourceBase == null)
             {
-                throw new ArgumentNullException("sourceBase");
+                throw new ArgumentNullException(nameof(sourceBase));
             }
 
             if (assemblyInfoFiles == null)
             {
-                throw new ArgumentNullException("assemblyInfoFiles");
+                throw new ArgumentNullException(nameof(assemblyInfoFiles));
             }
 
             var patcher = new AssemblyPatcher(sourceBase, _logger);
-            
-            PatchResult result = patcher.Patch(assemblyInfoFiles.ToList(), assemblyVersion, assemblyFileVersion, assemblyMetaData);
-            
+
+            PatchResult result = patcher.Patch(assemblyInfoFiles.ToList(),
+                assemblyVersion,
+                assemblyFileVersion,
+                assemblyMetaData);
+
             patcher.SavePatchResult(result);
         }
 
@@ -115,8 +126,10 @@ namespace Arbor.Sorbus.Core
 
             foreach (AssemblyInfoPatchResult result in unpatched)
             {
-                Console.WriteLine("{0} changed from version {1} to version {2}", result.FullPath,
-                    result.OldAssemblyVersion, result.AssemblyVersion);
+                Console.WriteLine("{0} changed from version {1} to version {2}",
+                    result.FullPath,
+                    result.OldAssemblyVersion,
+                    result.AssemblyVersion);
             }
         }
     }

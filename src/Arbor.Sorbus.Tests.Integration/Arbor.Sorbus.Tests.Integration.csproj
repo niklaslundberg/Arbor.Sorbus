@@ -1,109 +1,41 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{49FE5647-4EAF-4FAD-8DC8-B26C6206E0B7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Arbor.Sorbus.Tests.Integration</RootNamespace>
-    <AssemblyName>Arbor.Sorbus.Tests.Integration</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Arbor.Aesculus.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Arbor.Aesculus.1.0.0\lib\net45\Arbor.Aesculus.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Machine.Specifications, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Machine.Specifications.0.9.1\lib\net45\Machine.Specifications.dll</HintPath>
-    </Reference>
-    <Reference Include="Machine.Specifications.Clr4, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Machine.Specifications.0.9.1\lib\net45\Machine.Specifications.Clr4.dll</HintPath>
-    </Reference>
-    <Reference Include="Machine.Specifications.Should">
-      <HintPath>..\packages\Machine.Specifications.Should.0.7.2\lib\net45\Machine.Specifications.Should.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="AssemblyInfoMetadata.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Compile Include="patch_assembly_info_with_metadata.cs" />
-    <Compile Include="when_creating_a_new_instance_with_relative_temp_path.cs" />
-    <Compile Include="when_creating_a_new_instance_with_absolute_temp_path.cs" />
-    <Compile Include="when_patching_other_file_name.cs" />
-    <Compile Include="when_patching_other_file_name_pattern.cs" />
-    <Compile Include="when_reading_lines_with_lf.cs" />
-    <Content Include="AssemblyInfo.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="AssemblyInfoMissingCRLF.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Compile Include="when_reading_lines_with_crlf.cs" />
-    <Compile Include="patch_assembly_info_base.cs" />
-    <Compile Include="patch_assembly_info_base_no_crlf.cs" />
-    <Compile Include="when_patching_and_unpatching_one_assembly_file.cs" />
-    <Compile Include="when_patching_an_empty_list_of_assembly_files.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="when_patching_a_list_with_one_of_assembly_file.cs" />
-    <Compile Include="when_patching_and_unpatching_one_assembly_file_with_no_crlf.cs" />
-    <Compile Include="when_patching_a_list_with_one_of_assembly_file_with_no_crlf.cs" />
-    <Compile Include="when_patching_a_null_list_of_assembly_files.cs" />
-    <Compile Include="when_patching_with_a_null_assembly_file_version.cs" />
-    <Compile Include="when_patching_with_a_null_assembly_version.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj">
-      <Project>{A07675A6-26C9-4350-8F07-69CD5D8B47B7}</Project>
-      <Name>Arbor.Sorbus.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="AssemblyInfo.cs" />
+      <Compile Remove="AssemblyInfoMetadata.cs" />
+      <Compile Remove="AssemblyInfoMissingCRLF.cs" />
+      <Compile Remove="OtherNames\Multiple\Another_TestPatch.cs" />
+      <Compile Remove="OtherNames\Multiple\OtherInfo_TestPatch.cs" />
+      <Compile Remove="OtherNames\Single\OtherInfo_TestPatch.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="AssemblyInfo.cs" />
+      <Content Include="AssemblyInfoMetadata.cs" />
+      <Content Include="AssemblyInfoMissingCRLF.cs" />
+      <Content Include="OtherNames\Multiple\Another_TestPatch.cs" />
+      <Content Include="OtherNames\Multiple\OtherInfo_TestPatch.cs" />
+      <Content Include="OtherNames\Single\OtherInfo_TestPatch.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Arbor.Aesculus" Version="3.0.0-build00033" />
+      <PackageReference Include="machine.specifications" Version="0.12.0" />
+      <PackageReference Include="machine.specifications.runner.visualstudio" Version="2.7.0" />
+      <PackageReference Include="machine.specifications.should" Version="0.11.0" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+      <PackageReference Include="NCrunch.Framework" Version="3.17.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj" />
+    </ItemGroup>
 </Project>

@@ -29,7 +29,7 @@ namespace Arbor.Sorbus.Tests.Integration
             string startDirectory = AppDomain.CurrentDomain.BaseDirectory;
             fileName = "AssemblyInfoMetadata.cs";
             string assemblyInfoPath2 = Path.Combine(
-                VcsPathHelper.FindVcsRootPath(startDirectory), "src",
+                VcsTestPathHelper.FindVcsRootPath(startDirectory), "src",
                 "Arbor.Sorbus.Tests.Integration", fileName);
 
             var originalfile = new FileInfo(assemblyInfoPath2);
@@ -43,8 +43,8 @@ namespace Arbor.Sorbus.Tests.Integration
 
             originalfile.CopyTo(destinationFile.FullName);
 
-            assemblyPatcher = new AssemblyPatcher(VcsPathHelper.FindVcsRootPath(),
-                new ConsoleLogger() { LogLevel = LogLevel.Debug });
+            assemblyPatcher = new AssemblyPatcher(VcsTestPathHelper.FindVcsRootPath(),
+                Console.WriteLine);
             assemblyInfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
 
 
