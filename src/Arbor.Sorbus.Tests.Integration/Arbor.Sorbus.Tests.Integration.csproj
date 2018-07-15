@@ -27,11 +27,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Arbor.Aesculus" Version="3.0.0-build00033" />
+      <PackageReference Include="Arbor.Aesculus" Version="3.0.0" />
       <PackageReference Include="machine.specifications" Version="0.12.0" />
       <PackageReference Include="machine.specifications.runner.visualstudio" Version="2.7.0" />
       <PackageReference Include="machine.specifications.should" Version="0.11.0" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
       <PackageReference Include="NCrunch.Framework" Version="3.17.0" />
     </ItemGroup>
 
