@@ -22,7 +22,7 @@
     <copyright>Copyright Niklas Lundberg 2018</copyright>
     <dependencies>
         <group targetFramework="netstandard2.0">
-            <dependency id="Newtonsoft.Json" version="[11.0,12.0)" />
+            <dependency id="Newtonsoft.Json" version="[11.0.0,13.0.0)" />
         </group>
     </dependencies>
     <references></references>
