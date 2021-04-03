@@ -28,14 +28,14 @@
 
     <ItemGroup>
       <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-      <PackageReference Include="machine.specifications" Version="0.12.0" />
-      <PackageReference Include="machine.specifications.runner.visualstudio" Version="2.7.0" />
-      <PackageReference Include="machine.specifications.should" Version="0.11.0" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-      <PackageReference Include="NCrunch.Framework" Version="3.17.0" />
+      <PackageReference Include="machine.specifications" Version="1.0.0" />
+      <PackageReference Include="machine.specifications.runner.visualstudio" Version="2.10.1" />
+      <PackageReference Include="machine.specifications.should" Version="1.0.0" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+      <PackageReference Include="NCrunch.Framework" Version="4.7.0.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj" />
+      <ProjectReference Include="..\..\src\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj" />
     </ItemGroup>
 </Project>

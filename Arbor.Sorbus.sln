@@ -3,18 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.Sorbus.Core", "Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj", "{A07675A6-26C9-4350-8F07-69CD5D8B47B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.Sorbus.Core", "src\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj", "{A07675A6-26C9-4350-8F07-69CD5D8B47B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.Sorbus.Tests.Integration", "Arbor.Sorbus.Tests.Integration\Arbor.Sorbus.Tests.Integration.csproj", "{49FE5647-4EAF-4FAD-8DC8-B26C6206E0B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.Sorbus.Tests.Integration", "tests\Arbor.Sorbus.Tests.Integration\Arbor.Sorbus.Tests.Integration.csproj", "{49FE5647-4EAF-4FAD-8DC8-B26C6206E0B7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0458A86D-DE78-472E-8AE7-194F02C720C1}"
 	ProjectSection(SolutionItems) = preProject
-		..\.gitattributes = ..\.gitattributes
-		..\.gitignore = ..\.gitignore
-		..\build\build.bat = ..\build\build.bat
-		..\License.txt = ..\License.txt
-		..\README.md = ..\README.md
-		..\version.json = ..\version.json
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		build\build.bat = build\build.bat
+		License.txt = License.txt
+		README.md = README.md
+		version.json = version.json
 	EndProjectSection
 EndProject
 Global
