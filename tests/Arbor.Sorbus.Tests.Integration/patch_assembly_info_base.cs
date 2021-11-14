@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Arbor.Aesculus.Core;
+using Arbor.Aesculus.NCrunch;
 using Machine.Specifications;
 
 namespace Arbor.Sorbus.Tests.Integration
@@ -11,7 +12,7 @@ namespace Arbor.Sorbus.Tests.Integration
         {
             string startDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string assemblyInfoPath = Path.Combine(
-                VcsTestPathHelper.FindVcsRootPath(startDirectory), "src",
+                VcsTestPathHelper.TryFindVcsRootPath()!, "tests",
                 "Arbor.Sorbus.Tests.Integration", "AssemblyInfo.cs");
 
             var originalfile = new FileInfo(assemblyInfoPath);

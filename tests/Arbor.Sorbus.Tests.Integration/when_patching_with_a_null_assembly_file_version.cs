@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Arbor.Aesculus.Core;
+using Arbor.Aesculus.NCrunch;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
 
@@ -18,7 +19,7 @@ namespace Arbor.Sorbus.Tests.Integration
 
         Establish context = () =>
         {
-            assemblyPatcher = new AssemblyPatcher(VcsTestPathHelper.FindVcsRootPath(),
+            assemblyPatcher = new AssemblyPatcher(VcsTestPathHelper.TryFindVcsRootPath()!,
                 Console.WriteLine);
             assemblyInfoFiles = new List<AssemblyInfoFile>();
             assemblyVersion = new AssemblyVersion(new Version(1, 0, 0, 0));
