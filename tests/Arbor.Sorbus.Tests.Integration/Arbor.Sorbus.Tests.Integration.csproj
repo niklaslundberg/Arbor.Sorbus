@@ -1,41 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <Compile Remove="AssemblyInfo.cs" />
-      <Compile Remove="AssemblyInfoMetadata.cs" />
-      <Compile Remove="AssemblyInfoMissingCRLF.cs" />
-      <Compile Remove="OtherNames\Multiple\Another_TestPatch.cs" />
-      <Compile Remove="OtherNames\Multiple\OtherInfo_TestPatch.cs" />
-      <Compile Remove="OtherNames\Single\OtherInfo_TestPatch.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="AssemblyInfo.cs" />
+    <Compile Remove="AssemblyInfoMetadata.cs" />
+    <Compile Remove="AssemblyInfoMissingCRLF.cs" />
+    <Compile Remove="OtherNames\Multiple\Another_TestPatch.cs" />
+    <Compile Remove="OtherNames\Multiple\OtherInfo_TestPatch.cs" />
+    <Compile Remove="OtherNames\Single\OtherInfo_TestPatch.cs" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <Content Include="AssemblyInfo.cs" />
-      <Content Include="AssemblyInfoMetadata.cs" />
-      <Content Include="AssemblyInfoMissingCRLF.cs" />
-      <Content Include="OtherNames\Multiple\Another_TestPatch.cs" />
-      <Content Include="OtherNames\Multiple\OtherInfo_TestPatch.cs" />
-      <Content Include="OtherNames\Single\OtherInfo_TestPatch.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Content Include="AssemblyInfo.cs" />
+    <Content Include="AssemblyInfoMetadata.cs" />
+    <Content Include="AssemblyInfoMissingCRLF.cs" />
+    <Content Include="OtherNames\Multiple\Another_TestPatch.cs" />
+    <Content Include="OtherNames\Multiple\OtherInfo_TestPatch.cs" />
+    <Content Include="OtherNames\Single\OtherInfo_TestPatch.cs" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-      <PackageReference Include="machine.specifications" Version="1.0.0" />
-      <PackageReference Include="machine.specifications.runner.visualstudio" Version="2.10.1" />
-      <PackageReference Include="machine.specifications.should" Version="1.0.0" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
-      <PackageReference Include="NCrunch.Framework" Version="4.7.0.4" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Arbor.Aesculus.NCrunch" Version="3.4.0" />
+    <PackageReference Include="machine.specifications" Version="1.0.0" />
+    <PackageReference Include="machine.specifications.runner.visualstudio" Version="2.10.2" />
+    <PackageReference Include="machine.specifications.should" Version="1.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="NCrunch.Framework" Version="4.7.0.4" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\src\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Arbor.Sorbus.Core\Arbor.Sorbus.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="*.ncrunchproject" />
+  </ItemGroup>
+
 </Project>

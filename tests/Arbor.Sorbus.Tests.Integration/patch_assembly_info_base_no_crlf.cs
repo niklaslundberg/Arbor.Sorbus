@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Arbor.Aesculus.Core;
+using Arbor.Aesculus.NCrunch;
 using Machine.Specifications;
 
 namespace Arbor.Sorbus.Tests.Integration
@@ -10,8 +11,7 @@ namespace Arbor.Sorbus.Tests.Integration
         Establish context = () =>
         {
             string startDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string assemblyInfoPath = Path.Combine(
-                VcsTestPathHelper.FindVcsRootPath(startDirectory), "src",
+            string assemblyInfoPath = Path.Combine(VcsTestPathHelper.TryFindVcsRootPath()!, "tests",
                 "Arbor.Sorbus.Tests.Integration", "AssemblyInfoMissingCRLF.cs");
 
             var originalfile = new FileInfo(assemblyInfoPath);

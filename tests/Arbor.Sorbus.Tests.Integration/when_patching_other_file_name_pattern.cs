@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Arbor.Aesculus.Core;
+using Arbor.Aesculus.NCrunch;
 using Arbor.Sorbus.Core;
 using Machine.Specifications;
 
@@ -17,7 +18,7 @@ namespace Arbor.Sorbus.Tests.Integration
 
         Because of = () =>
         {
-            sourceBase = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
+            sourceBase = Path.Combine(VcsTestPathHelper.TryFindVcsRootPath()!, "tests",
                 "Arbor.Sorbus.Tests.Integration", "OtherNames", "Multiple");
             app.Patch(new AssemblyVersion(new Version("1.2.3.4")), new AssemblyFileVersion(new Version("1.2.0.0")),
                 sourceBase, "*_TestPatch.cs");

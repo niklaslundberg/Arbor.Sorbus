@@ -1,0 +1,8 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <BuildProcessArchitecture>x86</BuildProcessArchitecture>
+    <IgnoredTests>
+      <AllTestsSelector />
+    </IgnoredTests>
+  </Settings>
+</ProjectConfiguration>
